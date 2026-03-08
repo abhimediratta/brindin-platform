@@ -1,0 +1,17 @@
+{
+  "name": "@brindin/frontend",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'frontend build placeholder'",
+    "dev": "echo 'frontend dev placeholder'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@brindin/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
