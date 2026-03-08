@@ -25,9 +25,24 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 - [x] `.gitignore`
 
 ### 1B: `packages/shared` — Shared Types & Schemas
-- `package.json` + `tsconfig.json`
-- Zod schemas for core entities: Brand, DesignSystem, Creative, ExtractionJob, GenerationJob, Intelligence
-- TypeScript type exports derived from Zod schemas
+
+**Status: COMPLETED**
+
+- [x] Added `zod ^3.23.0` to `packages/shared/package.json`
+- [x] `schemas/common.ts` — reusable primitives (uuid, timestamp, slug, dimensions, hexColor, url, jsonb)
+- [x] `schemas/organization.ts` — organizationSchema + ORG_PLANS enum
+- [x] `schemas/user.ts` — userSchema + USER_ROLES enum
+- [x] `schemas/brand.ts` — brandSchema full/create/update triplet
+- [x] `schemas/brand-creative.ts` — brandCreativeSchema
+- [x] `schemas/design-system.ts` — 10 JSONB sub-schemas, designSystem/version/regionalVariant schemas, 4 enums
+- [x] `schemas/extraction-job.ts` — extractionJobSchema + 7-status pipeline enum
+- [x] `schemas/generation-job.ts` — generationJobSchema + 6-status pipeline enum
+- [x] `schemas/generated-variant.ts` — generatedVariantSchema + copyContent + VARIANT_STATUSES/COPY_APPROACHES enums
+- [x] `schemas/intelligence.ts` — intelligenceEntrySchema + DIMENSIONS/ENTRY_TYPES/CONFIDENCE_TIERS enums
+- [x] `schemas/usage.ts` — usageEventSchema + usageSummarySchema + EVENT_TYPES/UNITS enums
+- [x] `schemas/campaign-brief.ts` — campaignBriefSchema + timePeriod/evidenceCitation sub-schemas
+- [x] `schemas/index.ts` barrel re-export + `src/index.ts` updated
+- [x] Build verified — all `.js` + `.d.ts` files generated in `dist/`
 
 ### 1C: `packages/backend` — Hono API Server
 - `package.json` with deps: `hono`, `drizzle-orm`, `drizzle-kit`, `bullmq`, `@aws-sdk/client-s3`, `zod`, `pg`
