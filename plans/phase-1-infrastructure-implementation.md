@@ -78,32 +78,22 @@ Every schema file exports: a Zod schema + a `z.infer<>` TypeScript type. Schemas
 
 ---
 
-## Step 1C: `packages/backend` — Hono API Server
+## Step 1C: `packages/backend` — Hono API Server ✅ COMPLETED
 
-**Add dependencies to `packages/backend`:**
-- Production: `hono`, `@hono/node-server`, `@hono/node-ws`, `@hono/zod-validator`, `drizzle-orm`, `pg`, `bullmq`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`, `zod`, `dotenv`
-- Dev: `drizzle-kit`, `@types/pg`
+All dependencies added, all source files created, typecheck passes.
 
-**Create files:**
-```
-packages/backend/src/
-  lib/
-    env.ts              — Zod-validated process.env (DATABASE_URL, REDIS_URL, S3_*, PORT, API_KEY)
-    storage.ts          — S3Client with uploadFile, getSignedDownloadUrl, deleteFile (forcePathStyle for MinIO)
-    queue.ts            — BullMQ Queue instances (thumbnails, extraction, generation) + createWorker helper
-  server/
-    index.ts            — Hono app, register middleware + routes, serve()
-    ws.ts               — WebSocket upgrade route /ws/jobs/:jobId using @hono/node-ws
-    middleware/
-      cors.ts           — hono/cors with origin '*'
-      logger.ts         — hono/logger
-      error-handler.ts  — try/catch wrapper returning { error, status } JSON
-      auth.ts           — check Authorization/X-API-Key header, set orgId on context
-    routes/
-      health.ts         — GET /api/health → { status: "ok" }
-```
-
-**Verify:** Start server with `pnpm --filter @brindin/backend dev`, hit `GET http://localhost:3001/api/health`.
+**Files created:**
+- `src/lib/env.ts` — Zod-validated env config (R2_*, DATABASE_URL, REDIS_URL, PORT, API_KEY)
+- `src/lib/storage.ts` — R2 storage via S3Client (uploadFile, getSignedDownloadUrl, deleteFile)
+- `src/lib/queue.ts` — BullMQ queues (thumbnails, extraction, generation) + createWorker factory
+- `src/server/types.ts` — AppEnv type (orgId on context)
+- `src/server/index.ts` — Hono app wiring middleware, routes, WS, serve()
+- `src/server/ws.ts` — WebSocket upgrade route /ws/jobs/:jobId
+- `src/server/middleware/cors.ts` — CORS with X-API-Key header
+- `src/server/middleware/logger.ts` — Request logging
+- `src/server/middleware/error-handler.ts` — Global error handler (HTTPException-aware)
+- `src/server/middleware/auth.ts` — API key auth with dev mode fallback
+- `src/server/routes/health.ts` — GET /api/health → { status: "ok", timestamp }
 
 ---
 

@@ -45,14 +45,18 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 - [x] Build verified — all `.js` + `.d.ts` files generated in `dist/`
 
 ### 1C: `packages/backend` — Hono API Server
-- `package.json` with deps: `hono`, `drizzle-orm`, `drizzle-kit`, `bullmq`, `@aws-sdk/client-s3`, `zod`, `pg`
-- `tsconfig.json`
-- Hono server entry point (`src/server/index.ts`)
-- Middleware: CORS, error handler, request logging, simple API key auth
-- Health check route
-- S3/R2 storage abstraction (`src/lib/storage.ts`): upload, download, presigned URLs
-- BullMQ queue setup (`src/lib/queue.ts`): job dispatch helpers
-- WebSocket setup for job progress (`src/server/ws.ts`)
+
+**Status: COMPLETED**
+
+- [x] `package.json` with deps: `hono`, `drizzle-orm`, `drizzle-kit`, `bullmq`, `@aws-sdk/client-s3`, `zod`, `pg`
+- [x] Hono server entry point (`src/server/index.ts`)
+- [x] Zod-validated env config (`src/lib/env.ts`)
+- [x] Middleware: CORS, error handler, request logging, API key auth
+- [x] Health check route (`GET /api/health`)
+- [x] R2 storage abstraction (`src/lib/storage.ts`): upload, download, presigned URLs
+- [x] BullMQ queue setup (`src/lib/queue.ts`): queue instances + createWorker factory
+- [x] WebSocket setup for job progress (`src/server/ws.ts`)
+- [x] Typecheck passes with zero errors
 
 ### 1D: Database Schema & Migrations (Drizzle)
 - Drizzle config (`drizzle.config.ts`)
