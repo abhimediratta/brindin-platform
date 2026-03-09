@@ -21,7 +21,7 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 - [x] Root `package.json` with workspace scripts
 - [x] `turbo.json` for build orchestration
 - [x] Root `tsconfig.json` (base config)
-- [x] `.env.example` with all required env vars (Anthropic, Sarvam, R2/S3, Postgres, Redis)
+- [x] `.env.example` with all required env vars (`ANTHROPIC_API_KEY`, `GOOGLE_GENAI_API_KEY`, `SARVAM_API_KEY`, R2/S3, Postgres, Redis)
 - [x] `.gitignore`
 
 ### 1B: `packages/shared` — Shared Types & Schemas
@@ -194,6 +194,54 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 
 ---
 
+## Phase 2F: Multi-Provider AI Layer
+
+**Goal:** Refactor the extraction pipeline to support multiple AI providers (Gemini 2.5 Pro, Claude, Sarvam AI) with task-based routing and fallback chains, before frontend work begins.
+
+### 2F-1: AI Abstraction Layer
+
+- [ ] New module `packages/backend/src/lib/ai/` with:
+  - `types.ts` — Provider-agnostic types: `AIProvider`, `AITask`, `VisionRequest`/`VisionResponse`, `SynthesisRequest`/`SynthesisResponse`, `TranslationRequest`/`TranslationResponse`
+  - `router.ts` — Task-based routing: maps each `AITask` to a primary provider + fallback chain, handles retries and provider failover
+  - `pricing.ts` — Unified cost calculation for Claude, Gemini, and Sarvam (replaces `MODEL_PRICING` in `usage.ts`)
+  - `providers/claude.ts` — Anthropic SDK wrapper (extracted from existing `claude-vision.ts` and `synthesis.ts`)
+  - `providers/gemini.ts` — `@google/generative-ai` SDK wrapper for Gemini 2.5 Pro
+  - `providers/sarvam.ts` — REST client (plain `fetch`) for Sarvam AI endpoints
+  - `index.ts` — Barrel export
+
+### 2F-2: Gemini Vision Integration
+
+- [ ] Refactor `claude-vision.ts` → `vision-analysis.ts` to use the AI router
+- [ ] **Primary:** Gemini 2.5 Pro for batched image analysis (layout, typography, image treatment, copy patterns, logo detection)
+- [ ] **Fallback:** Claude Haiku 4.5 if Gemini fails or rate-limits
+- [ ] Maintain existing output schema — no downstream changes to aggregation/synthesis
+- [ ] Usage event recording for both providers (model, input/output tokens, cost)
+
+### 2F-3: Gemini Synthesis Fallback
+
+- [ ] Refactor `synthesis.ts` to use the AI router
+- [ ] **Primary:** Claude Sonnet 4.6 for design system synthesis (unchanged)
+- [ ] **Fallback:** Gemini 2.5 Pro if Claude fails or exceeds budget
+- [ ] Same token budget guards and structured output validation for both providers
+
+### 2F-4: Sarvam AI Client + Translation Queue
+
+- [ ] New BullMQ queue `translation` for async translation jobs
+- [ ] `providers/sarvam.ts` — Translation + transliteration + TTS endpoints
+- [ ] Translation worker: picks jobs from queue, calls Sarvam, stores results
+- [ ] Rate limiting and retry logic for Sarvam API
+
+### 2F-5: Regional Variant Pipeline
+
+- [ ] Wire `regional_variants` table with Sarvam-powered translation/transliteration
+- [ ] Auto-translate design system copy guidelines for regional variants
+- [ ] Transliterate brand names across scripts (Latin ↔ Devanagari, etc.)
+- [ ] Store translated/transliterated content in `regional_variants` override fields
+
+**Milestone:** Extraction pipeline runs with Gemini 2.5 Pro as primary vision model, Claude as fallback. Translation queue operational for regional variants.
+
+---
+
 ## Phase 3: Extraction Frontend & Design System Editor (Sprint 3, Weeks 7-9)
 
 **Goal:** Full browser-based extract-review-edit-approve workflow.
@@ -272,9 +320,13 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 ### 4D: Copy Generation & Translation (Node)
 - `src/workers/copy-generation.ts`:
   - Claude generates copy variants (2-3 approaches per template: offer-led, benefit-led, question hook, social proof)
+  - Gemini 2.5 Pro generates alternative copy variants (different "voice" for diversity — run in parallel with Claude)
   - Respects design system copy guidelines (tone, language, CTA conventions)
+- `src/workers/brand-compliance.ts`:
+  - Gemini 2.5 Pro for brand compliance checking (cheap structured verification against design system rules)
+  - Validates generated copy against brand tone, CTA conventions, and cultural guidelines
 - `src/workers/sarvam-translation.ts`:
-  - Sarvam AI translation for Hindi/regional versions
+  - Sarvam AI translation for Hindi/regional versions (via translation queue from Phase 2F)
   - Transliteration for brand names across scripts
 
 ### 4E: Design System Constraint Engine (Node)
@@ -392,6 +444,9 @@ brindin-platform/
         server/index.ts, ws.ts
         db/schema.ts, index.ts
         lib/storage.ts, queue.ts, usage.ts
+        lib/ai/
+          index.ts, types.ts, router.ts, pricing.ts
+          providers/claude.ts, gemini.ts, sarvam.ts
         modules/
           brand/routes.ts, service.ts
           design-system/routes.ts, orchestrator.ts, aggregation.ts
@@ -446,5 +501,7 @@ After each phase:
 | Database | PostgreSQL 16 |
 | Cache/Queue | Redis 7 |
 | Object storage | Cloudflare R2 / MinIO (local) |
-| AI - Analysis/Synthesis | Claude Haiku 4.5 + Sonnet 4.6 |
+| AI - Vision Analysis | Gemini 2.5 Pro (primary) + Claude Haiku 4.5 (fallback) |
+| AI - Synthesis | Claude Sonnet 4.6 (primary) + Gemini 2.5 Pro (fallback) |
+| AI - Copy Generation | Claude Sonnet 4.6 + Gemini 2.5 Pro (parallel, for voice diversity) |
 | AI - Translation | Sarvam AI |
