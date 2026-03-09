@@ -146,20 +146,29 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
   - Claude Vision OCR + language identification (deferred to later phase)
 
 ### 2C: Stage 3 — Aggregation Engine (Node)
-- `src/modules/design-system/aggregation.ts`:
-  - Color palette clustering: DBSCAN in Lab space, centroid, frequency, semantic roles
-  - Typography aggregation: group by type, dominant families, size hierarchy, density
+
+**Status: COMPLETED**
+
+- [x] `src/modules/design-system/aggregation.ts`:
+  - Color palette clustering: greedy CIE76 deltaE (<15) in Lab space, centroid, frequency, semantic roles
+  - Typography aggregation: group by type (serif/sans/display), dominant families, frequency
   - Layout frequency analysis: normalize to canonical types, frequency counts
-  - Copy pattern analysis: tone, language mix, CTA patterns
-  - Inconsistency detection: color drift, layout/typography/tone inconsistencies
+  - Copy pattern analysis: tone, CTA patterns, structure patterns
+  - Inconsistency detection: color drift, layout/typography/tone/image inconsistencies
 
 ### 2D: Stage 4 — Synthesis (Node)
-- `src/workers/synthesis.ts`:
+
+**Status: COMPLETED**
+
+- [x] `src/modules/design-system/synthesis.ts`:
   - Single Claude Sonnet 4.6 call with all aggregated data
   - Output: structured DesignSystem JSON matching Zod schema
   - Per-dimension confidence scoring (strong/moderate/emerging)
-  - Onboarding guide (markdown)
-  - Inconsistency report with creative references
+  - Onboarding guide + inconsistency report with recommendations
+  - Token budget guards: 5k output cap, 60k input guard, retry budget check, truncation detection
+  - Fallback to deterministic output if AI fails
+- [x] `src/lib/usage.ts`: `calculateCostMicrodollars()` with per-model pricing (Haiku + Sonnet)
+- [x] Cost tracking wired into vision-analysis worker and synthesis — `costMicrodollars` stored in DB + metadata
 
 ### 2E: Pipeline Orchestration
 - `src/modules/design-system/orchestrator.ts`:
