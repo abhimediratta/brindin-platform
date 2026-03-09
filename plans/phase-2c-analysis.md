@@ -1,5 +1,7 @@
 # Phase 2C: Individual Analysis Workers (Color Extraction + Claude Vision)
 
+**Status: COMPLETED**
+
 ## Context
 
 Phase 2A built the infrastructure (Redis pub/sub, new queues, worker entry point). Phase 2B built the preprocessing worker (validation, phash dedup). Phase 2C builds Stage 2 of the extraction pipeline: two workers that run in parallel — Python color extraction (k-means in Lab space) and Node Claude Vision analysis (layout, typography, copy, image treatment, logo, OCR).
