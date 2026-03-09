@@ -58,15 +58,17 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 - [x] WebSocket setup for job progress (`src/server/ws.ts`)
 - [x] Typecheck passes with zero errors
 
-### 1D: Database Schema & Migrations (Drizzle)
-- Drizzle config (`drizzle.config.ts`)
-- All tables from the plan via Drizzle schema (`src/db/schema.ts`):
+### 1D: Database Schema & Migrations (Drizzle) ✅
+- [x] Drizzle config (`drizzle.config.ts`)
+- [x] All 14 tables via Drizzle schema (`src/db/schema.ts`):
   - `organizations`, `users`, `brands`, `brand_creatives`
   - `design_systems`, `design_system_versions`, `regional_variants`
   - `extraction_jobs`, `generation_jobs`, `generated_variants`
-  - `intelligence_entries`, `usage_events`, `usage_summaries`
-- Generate and run initial migration
-- DB connection helper (`src/db/index.ts`)
+  - `intelligence_entries`, `usage_events`, `usage_summaries`, `campaign_briefs`
+- [x] Generate initial migration (`drizzle-kit generate` — 14 tables, 19 FKs, 7 indexes)
+- [x] DB connection helper (`src/db/index.ts`)
+- [x] Added `db:generate`, `db:migrate`, `db:push`, `db:studio` scripts
+- [x] Typecheck passes with zero errors
 
 ### 1E: Brand Module & Creative Upload
 - Brand CRUD routes: `POST/GET /api/brands`, `GET /api/brands/:id`

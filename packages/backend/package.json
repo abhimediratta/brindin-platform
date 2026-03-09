@@ -6,7 +6,11 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/server/index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@brindin/shared": "workspace:*",
