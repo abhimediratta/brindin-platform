@@ -71,11 +71,14 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 - [x] Typecheck passes with zero errors
 
 ### 1E: Brand Module & Creative Upload
-- Brand CRUD routes: `POST/GET /api/brands`, `GET /api/brands/:id`
-- Creative upload: `POST /api/brands/:id/creatives/upload` (multipart -> S3, create DB record)
-- Creative list: `GET /api/brands/:id/creatives`
-- Usage recording utility (`src/lib/usage.ts`): `recordUsageEvent()` helper
-- Instrument upload with `storage_upload` usage event
+
+**Status: COMPLETED**
+
+- [x] Brand CRUD routes: `POST/GET /api/brands`, `GET /api/brands/:id`
+- [x] Creative upload: `POST /api/brands/:id/creatives/upload` (multipart -> S3, create DB record)
+- [x] Creative list: `GET /api/brands/:id/creatives`
+- [x] Usage recording utility (`src/lib/usage.ts`): `recordUsageEvent()` helper
+- [x] Instrument upload with `storage_upload` usage event
 
 ### 1F: `packages/workers-py` — Python Worker Scaffold
 - `requirements.txt`: Pillow, scikit-learn, imagehash, rembg, playwright, redis, bullmq (or redis BRPOP)

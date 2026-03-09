@@ -7,6 +7,7 @@ import { loggerMiddleware } from './middleware/logger.js';
 import { corsMiddleware } from './middleware/cors.js';
 import { authMiddleware } from './middleware/auth.js';
 import healthRoutes from './routes/health.js';
+import brandRoutes from './routes/brands.js';
 import { setupWebSocket } from './ws.js';
 
 const app = new Hono<AppEnv>();
@@ -21,6 +22,7 @@ app.use('/api/*', authMiddleware);
 
 // Routes
 app.route('/api', healthRoutes);
+app.route('/api', brandRoutes);
 
 // WebSocket
 const { injectWebSocket } = setupWebSocket(app);
