@@ -109,16 +109,19 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 
 ---
 
-## Phase 2: Design System Extraction Pipeline (Sprint 2, Weeks 4-6)
+## Phase 2: Design System Extraction Pipeline (Sprint 2, Weeks 4-6) ✅ COMPLETED
 
 **Goal:** Full 4-stage extraction pipeline working end-to-end via API.
 
 ### 2A: Stage 1 — Preprocessing Worker (Python)
-- `src/preprocessing/validator.py`: format validation (JPEG/PNG/WebP), reject >25MB, exclude <200x200
-- `src/preprocessing/phash.py`: perceptual hashing via `imagehash`, duplicate detection (hamming distance <5)
-- `src/preprocessing/thumbnails.py`: 300px wide thumbnails via Pillow
-- Store results in Redis for pipeline resumability
-- Update `brand_creatives` rows with phash, dimensions, exclusion status
+
+**Status: COMPLETED**
+
+- [x] `src/preprocessing/validator.py`: format validation (JPEG/PNG/WebP), reject >25MB, exclude <200x200
+- [x] `src/preprocessing/phash.py`: perceptual hashing via `imagehash`, duplicate detection (hamming distance <5)
+- [x] `src/preprocessing/thumbnails.py`: 300px wide thumbnails via Pillow
+- [x] Store results in Redis for pipeline resumability
+- [x] Update `brand_creatives` rows with phash, dimensions, exclusion status
 
 ### 2B: Stage 2 — Individual Analysis (Parallel: Python + Node)
 
@@ -171,15 +174,21 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 - [x] Cost tracking wired into vision-analysis worker and synthesis — `costMicrodollars` stored in DB + metadata
 
 ### 2E: Pipeline Orchestration
-- `src/modules/design-system/orchestrator.ts`:
+
+**Status: COMPLETED**
+
+- [x] `src/modules/design-system/extraction.service.ts`: DB operations for extraction jobs, creatives, design systems
+- [x] `src/modules/design-system/orchestrator.ts`:
   - Multi-stage job orchestration: preprocessing -> (color + vision in parallel) -> aggregation -> synthesis
   - Progress tracking: each stage updates Redis, WebSocket broadcasts
-- API routes:
-  - `POST /api/brands/:id/design-system/extract` — trigger extraction
+- [x] `src/workers/extraction-orchestrator.ts`: BullMQ worker on extraction queue (concurrency 2)
+- [x] API routes (`src/server/routes/extraction.ts`):
+  - `POST /api/brands/:id/design-system/extract` — trigger extraction (409 if active job)
   - `GET /api/brands/:id/design-system` — get current design system
+  - `GET /api/brands/:id/extraction-jobs/:jobId` — get job status
   - `WS /ws/jobs/:jobId` — real-time progress
-- Store results: DesignSystem row in Postgres, per-creative analysis in `brand_creatives`
-- Instrument: `extraction` event, `ai_api_call` events with token counts
+- [x] Store results: DesignSystem row in Postgres, per-creative analysis in `brand_creatives`
+- [x] Instrument: `extraction` event, `ai-inference` events with token counts + cost
 
 **Milestone:** `POST /api/brands/:id/design-system/extract` returns structured design system in <10 min for 50 images.
 
