@@ -43,6 +43,20 @@ def update_creative_preprocessing(
         conn.close()
 
 
+def update_creative_color_analysis(creative_id: str, color_analysis: dict) -> None:
+    """Update the color_analysis jsonb column for a brand_creatives row."""
+    conn = psycopg2.connect(DATABASE_URL)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE brand_creatives SET color_analysis = %s WHERE id = %s",
+                (Json(color_analysis), creative_id),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def get_brand_phashes(brand_id: str) -> dict[str, str]:
     """Return {creative_id: phash_hex} for all non-excluded creatives with a phash in the brand."""
     conn = psycopg2.connect(DATABASE_URL)

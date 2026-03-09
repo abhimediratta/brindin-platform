@@ -11,6 +11,7 @@ from .config import REDIS_URL, HEALTH_PORT
 from .health import app as health_app
 from .preprocessing.thumbnails import generate_thumbnail
 from .preprocessing.processor import process_preprocessing
+from .color.processor import process_color_extraction
 from .db import update_creative_thumbnail
 
 logging.basicConfig(
@@ -62,6 +63,9 @@ async def main():
     preprocessing_worker = Worker("preprocessing", process_preprocessing, redis_opts)
     logger.info("Preprocessing worker started, listening on queue 'preprocessing'")
 
+    color_worker = Worker("color-extraction", process_color_extraction, redis_opts)
+    logger.info("Color extraction worker started, listening on queue 'color-extraction'")
+
     # Graceful shutdown
     loop = asyncio.get_running_loop()
     stop_event = asyncio.Event()
@@ -78,6 +82,7 @@ async def main():
     logger.info("Closing workers...")
     await thumbnail_worker.close()
     await preprocessing_worker.close()
+    await color_worker.close()
     logger.info("Workers stopped")
 
 

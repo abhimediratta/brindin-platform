@@ -121,20 +121,29 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 - Update `brand_creatives` rows with phash, dimensions, exclusion status
 
 ### 2B: Stage 2 — Individual Analysis (Parallel: Python + Node)
-- **Python worker** — `src/color/extractor.py`:
+
+**Status: COMPLETED**
+
+- [x] **Python worker** — `src/color/extractor.py`:
   - Resize to 200x200
   - k-means (scikit-learn) in Lab color space, extract top 8 colors
   - Calculate pixel percentages, identify background color from border pixels
   - Convert to HSL, Lab, Hex
   - Store in `brand_creatives.color_analysis` JSONB
-- **Node worker** — `src/workers/claude-vision.ts`:
+- [x] **Python worker** — `src/color/processor.py`: BullMQ job handler for color extraction
+- [x] **Shared progress utility** — `src/progress.py`: extracted `signal_stage_progress` from preprocessing
+- [x] **DB helper** — `update_creative_color_analysis` added to `src/db.py`
+- [x] **Color worker registered** in `src/main.py` on queue `color-extraction`
+- [x] **Node worker** — `src/workers/claude-vision.ts`:
   - Claude Haiku 4.5 batched analysis (3-5 images per API call)
-  - Prompt from plan: layout, typography, image treatment, copy patterns, logo, platform estimate
-  - Prompt caching enabled (same analysis prompt reused)
-  - Retry logic with exponential backoff
+  - Prompt from plan: layout, typography, image treatment, copy patterns, logo
+  - Prompt caching enabled (system prompt with cache_control ephemeral)
+  - Rate limiter: 10 jobs/min, concurrency 3
   - Store in `brand_creatives.analysis` JSONB
+  - Usage event recording (model, input/output tokens)
+- [x] **Vision worker registered** in `src/workers/start.ts`
 - **Node worker** — `src/workers/text-extraction.ts`:
-  - Claude Vision OCR + language identification
+  - Claude Vision OCR + language identification (deferred to later phase)
 
 ### 2C: Stage 3 — Aggregation Engine (Node)
 - `src/modules/design-system/aggregation.ts`:

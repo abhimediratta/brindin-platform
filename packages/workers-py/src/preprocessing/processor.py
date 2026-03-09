@@ -1,32 +1,11 @@
-import json
 import logging
 
-import redis as redispy
-
-from ..config import REDIS_URL
 from ..db import update_creative_preprocessing, get_brand_phashes
+from ..progress import signal_stage_progress
 from .validator import validate_creative
 from .phash import compute_phash, find_duplicate
 
 logger = logging.getLogger(__name__)
-
-
-def signal_stage_progress(job_id: str, stage: str) -> bool:
-    """Mirror Node signalStageProgress: increment completed counter, publish if stage done."""
-    r = redispy.from_url(REDIS_URL)
-    try:
-        completed = r.incr(f"extraction:{job_id}:{stage}:completed")
-        total = r.get(f"extraction:{job_id}:{stage}:total")
-
-        if total is not None and completed >= int(total):
-            r.publish(
-                f"extraction:orchestration:{job_id}",
-                json.dumps({"event": "stage-complete", "stage": stage}),
-            )
-            return True
-        return False
-    finally:
-        r.close()
 
 
 async def process_preprocessing(job, token) -> dict:
