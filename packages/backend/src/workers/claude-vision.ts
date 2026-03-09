@@ -7,7 +7,7 @@ import { env } from '../lib/env.js';
 import { createWorker } from '../lib/queue.js';
 import { signalStageProgress } from '../lib/redis-pubsub.js';
 import { getSignedDownloadUrl } from '../lib/storage.js';
-import { recordUsageEvent } from '../lib/usage.js';
+import { calculateCostMicrodollars, recordUsageEvent } from '../lib/usage.js';
 
 interface VisionJobData {
   creativeIds: string[];
@@ -147,7 +147,13 @@ async function processVisionBatch(job: { data: VisionJobData }): Promise<{ proce
     }
   }
 
-  // Record usage event
+  // Record usage event with cost
+  const model = 'claude-haiku-4-5-20241022';
+  const costMicrodollars = calculateCostMicrodollars(
+    model,
+    response.usage.input_tokens,
+    response.usage.output_tokens,
+  );
   await recordUsageEvent({
     orgId,
     brandId,
@@ -155,10 +161,12 @@ async function processVisionBatch(job: { data: VisionJobData }): Promise<{ proce
     eventSubtype: 'vision-analysis',
     quantity: creativeIds.length,
     unit: 'images',
+    costMicrodollars,
     metadata: {
-      model: 'claude-haiku-4-5-20241022',
+      model,
       inputTokens: response.usage.input_tokens,
       outputTokens: response.usage.output_tokens,
+      costMicrodollars,
     },
   });
 
