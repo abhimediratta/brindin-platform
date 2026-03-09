@@ -22,8 +22,8 @@ Pipeline: **Preprocessing → Individual Analysis (parallel) → Aggregation →
 | 2A | `phase-2a-infrastructure.md` | ✅ Redis pub/sub, new queues, Node worker entry point, WebSocket enhancement |
 | 2B | `phase-2b-preprocessing.md` | ✅ Python image validator, phash dedup, preprocessing queue worker |
 | 2C | `phase-2c-analysis.md` | ✅ Python color extraction + Node Claude Vision analysis workers |
-| 2D | `phase-2d-aggregation-synthesis.md` | Aggregation engine + Claude Sonnet synthesis |
-| 2E | `phase-2e-orchestration.md` | Pipeline orchestrator, extraction service, API routes, wiring |
+| 2D | `phase-2d-aggregation-synthesis.md` | ✅ Aggregation engine + Claude Sonnet synthesis |
+| 2E | `phase-2e-orchestration.md` | ✅ Pipeline orchestrator, extraction service, API routes, wiring |
 
 Each sub-phase file is self-contained with its own context, file list, and verification steps.
 
