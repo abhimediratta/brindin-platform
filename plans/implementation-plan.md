@@ -81,18 +81,31 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 - [x] Instrument upload with `storage_upload` usage event
 
 ### 1F: `packages/workers-py` — Python Worker Scaffold
-- `requirements.txt`: Pillow, scikit-learn, imagehash, rembg, playwright, redis, bullmq (or redis BRPOP)
-- `Dockerfile`
-- `src/main.py`: Redis consumer / BullMQ listener
-- `src/preprocessing/thumbnails.py`: receive job, download from S3, resize via Pillow, upload thumbnail
-- Health endpoint via FastAPI
+
+**Status: COMPLETED**
+
+- [x] `requirements.txt`: Pillow, scikit-learn, imagehash, rembg, playwright, bullmq, boto3, psycopg2, FastAPI, uvicorn
+- [x] `Dockerfile` (python:3.11-slim with Pillow system deps + Playwright Chromium)
+- [x] `.gitignore` for .venv, __pycache__, *.pyc
+- [x] `src/main.py`: BullMQ Worker on `thumbnails` queue + FastAPI health server on :3002
+- [x] `src/config.py`: env vars from root `.env` via python-dotenv
+- [x] `src/health.py`: `GET /health` endpoint
+- [x] `src/db.py`: `update_creative_thumbnail()` via psycopg2
+- [x] `src/preprocessing/thumbnails.py`: S3 download → Pillow resize 300px → WebP → S3 upload
+- [x] Thumbnail key pattern: `{dir}/thumb.webp` (fixed name within creative UUID directory)
 
 ### 1G: Docker Compose & Local Dev
-- `docker-compose.yml`: PostgreSQL 16, Redis 7, MinIO (S3-compatible local dev)
-- `packages/frontend`: Next.js 14 App Router scaffold (bare minimum — layout, home page, tailwind, radix)
-- README with setup instructions
 
-**Milestone:** `docker compose up` starts all services. Create brand via API, upload 50 images, thumbnails auto-generated in S3.
+**Status: COMPLETED**
+
+- [x] `docker-compose.yml`: PostgreSQL 16, Redis 7, MinIO (S3-compatible), minio-init sidecar
+- [x] `.env.example` updated with MinIO local dev values
+- [x] Root `package.json` scripts: `dev:infra`, `dev:stop`, `db:push`
+- [x] `packages/frontend`: Next.js 14 App Router scaffold (layout, page, globals.css)
+- [x] Frontend `tsconfig.json` rewritten for Next.js bundler mode
+- [x] `next.config.js` with `transpilePackages: ['@brindin/shared']`
+
+**Milestone:** `docker compose up` starts all services. Create brand via API, upload images, thumbnails auto-generated in S3.
 
 ---
 

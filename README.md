@@ -2,7 +2,7 @@
 
 Market intelligence and creative production platform purpose-built for Indian digital advertising agencies. Brindin helps agencies scale creative production across India's linguistically fragmented, tier-diverse market — extracting design systems from existing brand creatives, generating region-aware variants, and surfacing actionable market intelligence.
 
-> **Status:** Work-in-progress. Core backend infrastructure is functional (Sprint 1E). Frontend and AI workers are not yet implemented.
+> **Status:** Work-in-progress. Phase 1 infrastructure complete (Sprint 1G). Backend API, Python thumbnail worker, Next.js frontend scaffold, and Docker Compose local dev environment are all functional.
 
 ## Tech Stack
 
@@ -11,9 +11,12 @@ Market intelligence and creative production platform purpose-built for Indian di
 | Monorepo | pnpm workspaces + Turborepo |
 | Runtime | Node.js 20+, TypeScript (ES2022, NodeNext) |
 | API | Hono (with Node.js adapter) |
-| Database | PostgreSQL + Drizzle ORM |
-| Job Queues | BullMQ + Redis |
-| Object Storage | Cloudflare R2 (S3-compatible) |
+| Frontend | Next.js 14 (App Router) |
+| Database | PostgreSQL 16 + Drizzle ORM |
+| Job Queues | BullMQ + Redis 7 |
+| Object Storage | Cloudflare R2 / MinIO (local dev) |
+| Python Workers | Python 3.11+, Pillow, BullMQ, FastAPI |
+| Local Infra | Docker Compose (Postgres, Redis, MinIO) |
 | Validation | Zod (shared schemas) |
 | AI (planned) | Anthropic Claude, Sarvam AI |
 
@@ -24,8 +27,8 @@ brindin-platform/
 ├── packages/
 │   ├── backend/       # Hono API server, DB, queues, storage    [active]
 │   ├── shared/        # Zod schemas & TypeScript types           [active]
-│   ├── frontend/      # Web UI                                   [placeholder]
-│   └── workers-py/    # Python AI workers                        [empty]
+│   ├── frontend/      # Next.js 14 App Router                    [scaffold]
+│   └── workers-py/    # Python workers (thumbnails, AI)          [active]
 ├── docs/
 │   ├── prd.md         # Product Requirements Document
 │   └── vision.md      # Product Vision
@@ -38,9 +41,9 @@ brindin-platform/
 
 - **Node.js** >= 20.0.0
 - **pnpm** >= 9.x (`corepack enable && corepack prepare pnpm@9.15.4 --activate`)
-- **PostgreSQL** (local or hosted)
-- **Redis** (for BullMQ job queues)
-- **Cloudflare R2** bucket (or any S3-compatible store)
+- **Python** >= 3.11 (for workers-py)
+- **Docker** & **Docker Compose** (for local Postgres, Redis, MinIO)
+- **Cloudflare R2** bucket (production) or MinIO via Docker Compose (local dev)
 
 ## Getting Started
 
@@ -49,23 +52,35 @@ brindin-platform/
 git clone <repo-url> && cd brindin-platform
 pnpm install
 
+# Start local infrastructure (Postgres, Redis, MinIO)
+pnpm dev:infra
+
 # Configure environment
 cp .env.example .env
-# Edit .env with your credentials (see Environment Variables below)
+# For local dev, set MinIO values:
+#   R2_ENDPOINT=http://localhost:9000
+#   R2_ACCESS_KEY=minioadmin
+#   R2_SECRET_KEY=minioadmin
 
-# Set up database
-cd packages/backend
-pnpm db:push      # Push schema directly (dev)
-# — or —
-pnpm db:generate  # Generate migration SQL
-pnpm db:migrate   # Run migrations (production)
-cd ../..
+# Push database schema
+pnpm db:push
 
-# Start development
-pnpm dev          # Starts all packages via Turborepo
+# Start backend (port 3001)
+pnpm --filter @brindin/backend dev
+
+# Start frontend (port 3000)
+pnpm --filter @brindin/frontend dev
+
+# Start Python worker (port 3002 health)
+cd packages/workers-py
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m src.main
 ```
 
-The backend runs at `http://localhost:3001` by default.
+- Backend API: `http://localhost:3001`
+- Frontend: `http://localhost:3000`
+- MinIO Console: `http://localhost:9001` (minioadmin/minioadmin)
 
 ## Scripts
 
@@ -74,6 +89,9 @@ The backend runs at `http://localhost:3001` by default.
 | Script | Description |
 |--------|-------------|
 | `pnpm dev` | Run all packages in dev mode (watch) |
+| `pnpm dev:infra` | Start Docker Compose services (Postgres, Redis, MinIO) |
+| `pnpm dev:stop` | Stop Docker Compose services |
+| `pnpm db:push` | Push database schema to Postgres (dev shortcut) |
 | `pnpm build` | Build all packages |
 | `pnpm lint` | Lint all packages |
 | `pnpm typecheck` | Type-check all packages |
@@ -180,7 +198,7 @@ Cloudflare R2 via S3-compatible API. Files are uploaded with org/brand-scoped ke
 
 ## Project Status
 
-### Completed (Sprint 1E)
+### Completed (Sprint 1G)
 - Monorepo scaffolding (pnpm + Turborepo)
 - Shared Zod schemas for all entities
 - PostgreSQL schema (14 tables) with Drizzle ORM
@@ -189,12 +207,15 @@ Cloudflare R2 via S3-compatible API. Files are uploaded with org/brand-scoped ke
 - R2 storage integration with signed URLs
 - BullMQ queue infrastructure + WebSocket job updates
 - Usage event tracking
+- Python thumbnail worker (BullMQ consumer, Pillow resize, S3 upload, Postgres update)
+- Docker Compose local dev (PostgreSQL 16, Redis 7, MinIO with auto-bucket creation)
+- Next.js 14 frontend scaffold (App Router, layout, home page)
 
 ### Planned
-- **Sprint 1F** — Python workers for thumbnail generation and design system extraction
-- **Phase 2** — AI-powered creative generation (Anthropic Claude)
-- **Phase 2+** — Market intelligence engine, regional variant generation (Sarvam AI)
-- **Frontend** — React/Next.js web application
+- **Phase 2** — Design system extraction pipeline (AI-powered)
+- **Phase 3** — Extraction frontend & design system editor
+- **Phase 4** — Creative generation pipeline & UI (Anthropic Claude, Sarvam AI)
+- **Phase 5** — Festival module, compliance & polish
 
 ## Documentation
 

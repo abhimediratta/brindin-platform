@@ -7,6 +7,9 @@
   },
   "scripts": {
     "dev": "turbo run dev",
+    "dev:infra": "docker compose up -d",
+    "dev:stop": "docker compose down",
+    "db:push": "pnpm --filter @brindin/backend db:push",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck"
