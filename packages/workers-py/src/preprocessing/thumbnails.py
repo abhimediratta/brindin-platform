@@ -1,23 +1,13 @@
 import io
 from pathlib import PurePosixPath
 
-import boto3
 from PIL import Image
 
-from ..config import S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET, S3_REGION
+from ..config import S3_BUCKET
+from ..storage import get_s3_client
 
 THUMB_WIDTH = 300
 THUMB_QUALITY = 80
-
-
-def _get_s3_client():
-    return boto3.client(
-        "s3",
-        endpoint_url=S3_ENDPOINT,
-        aws_access_key_id=S3_ACCESS_KEY,
-        aws_secret_access_key=S3_SECRET_KEY,
-        region_name=S3_REGION,
-    )
 
 
 def _derive_thumbnail_key(original_key: str) -> str:
@@ -28,7 +18,7 @@ def _derive_thumbnail_key(original_key: str) -> str:
 
 def generate_thumbnail(s3_key: str) -> str:
     """Download original from S3, resize to 300px wide WebP, upload, return thumbnail key."""
-    s3 = _get_s3_client()
+    s3 = get_s3_client()
 
     # Download original
     response = s3.get_object(Bucket=S3_BUCKET, Key=s3_key)

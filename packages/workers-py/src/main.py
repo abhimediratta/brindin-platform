@@ -10,6 +10,7 @@ from bullmq import Worker
 from .config import REDIS_URL, HEALTH_PORT
 from .health import app as health_app
 from .preprocessing.thumbnails import generate_thumbnail
+from .preprocessing.processor import process_preprocessing
 from .db import update_creative_thumbnail
 
 logging.basicConfig(
@@ -54,9 +55,12 @@ async def main():
     if parsed.password:
         redis_opts["password"] = parsed.password
 
-    # Create BullMQ worker
-    worker = Worker("thumbnails", process_thumbnail, redis_opts)
+    # Create BullMQ workers
+    thumbnail_worker = Worker("thumbnails", process_thumbnail, redis_opts)
     logger.info("Thumbnail worker started, listening on queue 'thumbnails'")
+
+    preprocessing_worker = Worker("preprocessing", process_preprocessing, redis_opts)
+    logger.info("Preprocessing worker started, listening on queue 'preprocessing'")
 
     # Graceful shutdown
     loop = asyncio.get_running_loop()
@@ -71,9 +75,10 @@ async def main():
 
     await stop_event.wait()
 
-    logger.info("Closing worker...")
-    await worker.close()
-    logger.info("Worker stopped")
+    logger.info("Closing workers...")
+    await thumbnail_worker.close()
+    await preprocessing_worker.close()
+    logger.info("Workers stopped")
 
 
 if __name__ == "__main__":
