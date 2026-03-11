@@ -1,7 +1,6 @@
-// Phase 2D — Design System Synthesis
-// Claude Sonnet API call to produce final DesignSystem JSON from aggregated data
+// Phase 2D/2F — Design System Synthesis
+// Uses multi-provider AI router for synthesis calls
 
-import Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 
 import {
@@ -15,8 +14,9 @@ import {
   extractionMetadataSchema,
 } from '@brindin/shared';
 
-import { env } from '../../lib/env.js';
 import { calculateCostMicrodollars, recordUsageEvent } from '../../lib/usage.js';
+import { getAIRouter } from '../../lib/ai/index.js';
+import type { SynthesisResponse } from '../../lib/ai/index.js';
 import type { AggregatedResult, ClusteredColor } from './aggregation.js';
 
 // --- Types ---
@@ -96,50 +96,38 @@ IMPORTANT:
 
 // --- Token Budget ---
 
-// Sonnet pricing: $3/M input, $15/M output (as of 2025)
-// Budget: cap total spend per synthesis at ~$0.15 (safe for a single brand)
-const MAX_OUTPUT_TOKENS = 5_120; // typical output ~1.2k tokens; 5k gives 4x headroom without overspending
-const MAX_USER_MESSAGE_CHARS = 60_000; // ~15k tokens; aggregated data is ~3-5k chars so this is a safety net
-const MAX_TOTAL_TOKENS_BUDGET = 30_000; // across both attempts combined; prevents runaway retry costs
+const MAX_OUTPUT_TOKENS = 5_120;
+const MAX_USER_MESSAGE_CHARS = 60_000;
+const MAX_TOTAL_TOKENS_BUDGET = 30_000;
 
 // --- Core Functions ---
 
-/** Rough token estimate: ~4 chars per token for JSON/English */
 function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4);
 }
 
-/**
- * Trim the aggregated data to fit within token budget.
- * Keeps top-N entries per category to reduce payload size.
- */
 function trimAggregatedData(input: SynthesisInput): SynthesisInput {
   const agg = input.aggregatedResult;
   return {
     ...input,
     aggregatedResult: {
       ...agg,
-      // Cap color clusters (already capped at 10, but enforce)
       colorPalette: agg.colorPalette.slice(0, 10),
-      // Cap layout entries
       layoutStructures: {
         ...agg.layoutStructures,
         layouts: agg.layoutStructures.layouts.slice(0, 8),
       },
-      // Cap CTA texts and structure patterns
       copyPatterns: {
         ...agg.copyPatterns,
         ctaTexts: agg.copyPatterns.ctaTexts.slice(0, 10),
         tones: agg.copyPatterns.tones.slice(0, 5),
         structurePatterns: agg.copyPatterns.structurePatterns.slice(0, 5),
       },
-      // Cap image treatment entries
       imageTreatment: {
         ...agg.imageTreatment,
         styles: agg.imageTreatment.styles.slice(0, 5),
         filterEffects: agg.imageTreatment.filterEffects.slice(0, 5),
       },
-      // Cap inconsistency examples
       inconsistencies: agg.inconsistencies.map((inc) => ({
         ...inc,
         exampleCreativeIds: inc.exampleCreativeIds.slice(0, 2),
@@ -148,36 +136,10 @@ function trimAggregatedData(input: SynthesisInput): SynthesisInput {
   };
 }
 
-function stripMarkdownFences(text: string): string {
-  // Remove ```json ... ``` or ``` ... ``` wrappers
+export function stripMarkdownFences(text: string): string {
   const match = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
   if (match) return match[1].trim();
   return text.trim();
-}
-
-async function callSynthesisAPI(
-  client: Anthropic,
-  systemPrompt: string,
-  userMessage: string,
-): Promise<{ text: string; truncated: boolean; usage: { input_tokens: number; output_tokens: number } }> {
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-6-20250514',
-    max_tokens: MAX_OUTPUT_TOKENS,
-    system: [
-      {
-        type: 'text',
-        text: systemPrompt,
-        cache_control: { type: 'ephemeral' },
-      },
-    ],
-    messages: [{ role: 'user', content: userMessage }],
-  });
-
-  const textBlock = response.content.find((block) => block.type === 'text');
-  const text = textBlock?.type === 'text' ? textBlock.text : '';
-  const truncated = response.stop_reason === 'max_tokens';
-
-  return { text, truncated, usage: response.usage };
 }
 
 export function buildConfidenceScores(aggregated: AggregatedResult): z.infer<typeof confidenceScoresSchema> {
@@ -189,7 +151,6 @@ export function buildConfidenceScores(aggregated: AggregatedResult): z.infer<typ
 
   const scores: Record<string, { strong?: number; moderate?: number; emerging?: number }> = {};
 
-  // Color confidence: average of top 3 color frequencies
   if (aggregated.colorPalette.length > 0) {
     const topColors = aggregated.colorPalette.slice(0, 3);
     const avgFreq = topColors.reduce((s, c) => s + c.frequency, 0) / topColors.length;
@@ -198,35 +159,30 @@ export function buildConfidenceScores(aggregated: AggregatedResult): z.infer<typ
     scores.color = { emerging: 0 };
   }
 
-  // Typography
   if (aggregated.typography.fonts.length > 0) {
     scores.typography = tierFromFreq(aggregated.typography.fonts[0].frequency);
   } else {
     scores.typography = { emerging: 0 };
   }
 
-  // Layout
   if (aggregated.layoutStructures.layouts.length > 0) {
     scores.layout = tierFromFreq(aggregated.layoutStructures.layouts[0].frequency);
   } else {
     scores.layout = { emerging: 0 };
   }
 
-  // Copy/tone
   if (aggregated.copyPatterns.tones.length > 0) {
     scores.tone = tierFromFreq(aggregated.copyPatterns.tones[0].frequency);
   } else {
     scores.tone = { emerging: 0 };
   }
 
-  // Image treatment
   if (aggregated.imageTreatment.styles.length > 0) {
     scores.imageTreatment = tierFromFreq(aggregated.imageTreatment.styles[0].frequency);
   } else {
     scores.imageTreatment = { emerging: 0 };
   }
 
-  // Logo
   scores.logo = tierFromFreq(aggregated.logoUsage.presenceRate);
 
   return scores;
@@ -320,7 +276,6 @@ function buildUserMessage(input: SynthesisInput): string {
   });
 }
 
-/** Synthesize a complete DesignSystem from aggregated creative analysis */
 export async function synthesizeDesignSystem(input: SynthesisInput): Promise<SynthesisResult> {
   const { orgId, brandId } = input;
 
@@ -331,8 +286,10 @@ export async function synthesizeDesignSystem(input: SynthesisInput): Promise<Syn
     excludedImages: input.excludedCreatives,
   };
 
-  // If no API key, go straight to fallback
-  if (!env.ANTHROPIC_API_KEY) {
+  const router = getAIRouter();
+
+  // If no synthesis provider is available, go straight to fallback
+  if (!router.isTaskAvailable('design-system-synthesis')) {
     return {
       output: buildFallbackOutput(input),
       confidenceScores,
@@ -341,11 +298,9 @@ export async function synthesizeDesignSystem(input: SynthesisInput): Promise<Syn
     };
   }
 
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-
   // Trim aggregated data to stay within token budget
   const trimmedInput = trimAggregatedData(input);
-  let userMessage = buildUserMessage(trimmedInput);
+  const userMessage = buildUserMessage(trimmedInput);
 
   // Hard guard: if payload is still too large, skip AI and use fallback
   if (userMessage.length > MAX_USER_MESSAGE_CHARS) {
@@ -360,12 +315,12 @@ export async function synthesizeDesignSystem(input: SynthesisInput): Promise<Syn
     };
   }
 
-  const SYNTHESIS_MODEL = 'claude-sonnet-4-6-20250514';
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
+  let usedModel = '';
 
   const recordSynthesisUsage = async (extra: Record<string, unknown>) => {
-    const costMicrodollars = calculateCostMicrodollars(SYNTHESIS_MODEL, totalInputTokens, totalOutputTokens);
+    const costMicrodollars = calculateCostMicrodollars(usedModel, totalInputTokens, totalOutputTokens);
     await recordUsageEvent({
       orgId,
       brandId,
@@ -375,7 +330,7 @@ export async function synthesizeDesignSystem(input: SynthesisInput): Promise<Syn
       unit: 'synthesis',
       costMicrodollars,
       metadata: {
-        model: SYNTHESIS_MODEL,
+        model: usedModel,
         inputTokens: totalInputTokens,
         outputTokens: totalOutputTokens,
         costMicrodollars,
@@ -386,22 +341,26 @@ export async function synthesizeDesignSystem(input: SynthesisInput): Promise<Syn
 
   // First attempt
   try {
-    const first = await callSynthesisAPI(client, SYSTEM_PROMPT, userMessage);
-    totalInputTokens += first.usage.input_tokens;
-    totalOutputTokens += first.usage.output_tokens;
+    const first: SynthesisResponse = await router.synthesize({
+      systemPrompt: SYSTEM_PROMPT,
+      userMessage,
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
+    });
+    totalInputTokens += first.usage.inputTokens;
+    totalOutputTokens += first.usage.outputTokens;
+    usedModel = first.model;
 
-    // Only try parsing if the response wasn't truncated
     if (!first.truncated) {
       const cleaned = stripMarkdownFences(first.text);
       const parsed = JSON.parse(cleaned);
       const result = designSystemOutputSchema.safeParse(parsed);
 
       if (result.success) {
-        await recordSynthesisUsage({ attempt: 1 });
+        await recordSynthesisUsage({ attempt: 1, provider: first.provider });
         return { output: result.data, confidenceScores, extractionMetadata, usedFallback: false };
       }
 
-      // Budget check before retry: skip if first attempt already used most of the budget
+      // Budget check before retry
       if (totalInputTokens + totalOutputTokens > MAX_TOTAL_TOKENS_BUDGET * 0.6) {
         console.warn(
           `[synthesis] First attempt used ${totalInputTokens + totalOutputTokens} tokens — skipping retry to stay within budget.`,
@@ -411,9 +370,14 @@ export async function synthesizeDesignSystem(input: SynthesisInput): Promise<Syn
         const zodErrors = result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('\n');
         const retryMessage = `${userMessage}\n\nYour previous response had validation errors. Fix these issues:\n${zodErrors}\n\nReturn corrected JSON only.`;
 
-        const retry = await callSynthesisAPI(client, SYSTEM_PROMPT, retryMessage);
-        totalInputTokens += retry.usage.input_tokens;
-        totalOutputTokens += retry.usage.output_tokens;
+        const retry: SynthesisResponse = await router.synthesize({
+          systemPrompt: SYSTEM_PROMPT,
+          userMessage: retryMessage,
+          maxOutputTokens: MAX_OUTPUT_TOKENS,
+        });
+        totalInputTokens += retry.usage.inputTokens;
+        totalOutputTokens += retry.usage.outputTokens;
+        usedModel = retry.model;
 
         if (!retry.truncated) {
           const retryCleaned = stripMarkdownFences(retry.text);
@@ -421,7 +385,7 @@ export async function synthesizeDesignSystem(input: SynthesisInput): Promise<Syn
           const retryResult = designSystemOutputSchema.safeParse(retryParsed);
 
           if (retryResult.success) {
-            await recordSynthesisUsage({ attempt: 2 });
+            await recordSynthesisUsage({ attempt: 2, provider: retry.provider });
             return { output: retryResult.data, confidenceScores, extractionMetadata, usedFallback: false };
           }
         }
@@ -431,7 +395,7 @@ export async function synthesizeDesignSystem(input: SynthesisInput): Promise<Syn
     // Fall through to fallback
   }
 
-  // Record usage even on fallback (if we made API calls)
+  // Record usage even on fallback
   if (totalInputTokens > 0) {
     await recordSynthesisUsage({ fallback: true });
   }

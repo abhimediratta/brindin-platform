@@ -1,13 +1,15 @@
-import Anthropic from '@anthropic-ai/sdk';
+// Phase 2F — Vision Analysis Worker (refactored from claude-vision.ts)
+// Uses multi-provider AI router instead of direct Anthropic SDK calls
+
 import { eq } from 'drizzle-orm';
 
 import { db } from '../db/index.js';
 import { brandCreatives } from '../db/schema.js';
-import { env } from '../lib/env.js';
 import { createWorker } from '../lib/queue.js';
 import { signalStageProgress } from '../lib/redis-pubsub.js';
 import { getSignedDownloadUrl } from '../lib/storage.js';
 import { calculateCostMicrodollars, recordUsageEvent } from '../lib/usage.js';
+import { getAIRouter } from '../lib/ai/index.js';
 
 interface VisionJobData {
   creativeIds: string[];
@@ -57,7 +59,6 @@ async function fetchImageAsBase64(s3Key: string): Promise<{ base64: string; medi
   const buffer = Buffer.from(await response.arrayBuffer());
   const base64 = buffer.toString('base64');
 
-  // Determine media type from extension
   const ext = s3Key.split('.').pop()?.toLowerCase() ?? '';
   const mediaTypeMap: Record<string, string> = {
     jpg: 'image/jpeg',
@@ -76,83 +77,34 @@ async function processVisionBatch(job: { data: VisionJobData }): Promise<{ proce
 
   await waitForRateLimit();
 
-  // Fetch and encode all images
   const images = await Promise.all(
     s3Keys.map((key) => fetchImageAsBase64(key)),
   );
 
-  // Build multi-image content blocks
-  const imageBlocks: Anthropic.Messages.ContentBlockParam[] = [];
-  for (let i = 0; i < images.length; i++) {
-    imageBlocks.push({
-      type: 'text',
-      text: `Image ${i + 1} (creative: ${creativeIds[i]}):`,
-    });
-    imageBlocks.push({
-      type: 'image',
-      source: {
-        type: 'base64',
-        media_type: images[i].mediaType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
-        data: images[i].base64,
-      },
-    });
-  }
-
-  imageBlocks.push({
-    type: 'text',
-    text: `Analyze all ${images.length} images above. Return a JSON array with one analysis object per image.`,
+  const router = getAIRouter();
+  const result = await router.analyzeVision({
+    images,
+    creativeIds,
+    systemPrompt: SYSTEM_PROMPT,
   });
-
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-
-  const response = await client.messages.create({
-    model: 'claude-haiku-4-5-20241022',
-    max_tokens: 4096,
-    system: [
-      {
-        type: 'text',
-        text: SYSTEM_PROMPT,
-        cache_control: { type: 'ephemeral' },
-      },
-    ],
-    messages: [
-      {
-        role: 'user',
-        content: imageBlocks,
-      },
-    ],
-  });
-
-  // Extract text from response
-  const textBlock = response.content.find((block) => block.type === 'text');
-  const responseText = textBlock?.type === 'text' ? textBlock.text : '';
-
-  // Parse JSON array from response (handle markdown code blocks)
-  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    throw new Error(`Failed to parse vision analysis response: ${responseText.slice(0, 200)}`);
-  }
-
-  const analyses: Record<string, unknown>[] = JSON.parse(jsonMatch[0]);
 
   // Update each creative's analysis in the database
   for (let i = 0; i < creativeIds.length; i++) {
-    if (analyses[i]) {
+    if (result.analyses[i]) {
       await db
         .update(brandCreatives)
-        .set({ analysis: analyses[i] })
+        .set({ analysis: result.analyses[i] })
         .where(eq(brandCreatives.id, creativeIds[i]));
 
       await signalStageProgress(jobId, 'vision-analysis');
     }
   }
 
-  // Record usage event with cost
-  const model = 'claude-haiku-4-5-20241022';
+  // Record usage event with cost from provider response
   const costMicrodollars = calculateCostMicrodollars(
-    model,
-    response.usage.input_tokens,
-    response.usage.output_tokens,
+    result.model,
+    result.usage.inputTokens,
+    result.usage.outputTokens,
   );
   await recordUsageEvent({
     orgId,
@@ -163,9 +115,10 @@ async function processVisionBatch(job: { data: VisionJobData }): Promise<{ proce
     unit: 'images',
     costMicrodollars,
     metadata: {
-      model,
-      inputTokens: response.usage.input_tokens,
-      outputTokens: response.usage.output_tokens,
+      model: result.model,
+      provider: result.provider,
+      inputTokens: result.usage.inputTokens,
+      outputTokens: result.usage.outputTokens,
       costMicrodollars,
     },
   });

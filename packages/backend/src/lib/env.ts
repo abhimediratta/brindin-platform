@@ -21,6 +21,7 @@ const envSchema = z.object({
 
   // AI Services (optional until Phase 2)
   ANTHROPIC_API_KEY: z.string().optional(),
+  GOOGLE_GENAI_API_KEY: z.string().optional(),
   SARVAM_API_KEY: z.string().optional(),
 
   // API Authentication (optional — dev mode works without it)

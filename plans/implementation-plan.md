@@ -196,11 +196,13 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 
 ## Phase 2F: Multi-Provider AI Layer
 
+**Status: COMPLETED**
+
 **Goal:** Refactor the extraction pipeline to support multiple AI providers (Gemini 2.5 Pro, Claude, Sarvam AI) with task-based routing and fallback chains, before frontend work begins.
 
 ### 2F-1: AI Abstraction Layer
 
-- [ ] New module `packages/backend/src/lib/ai/` with:
+- [x] New module `packages/backend/src/lib/ai/` with:
   - `types.ts` — Provider-agnostic types: `AIProvider`, `AITask`, `VisionRequest`/`VisionResponse`, `SynthesisRequest`/`SynthesisResponse`, `TranslationRequest`/`TranslationResponse`
   - `router.ts` — Task-based routing: maps each `AITask` to a primary provider + fallback chain, handles retries and provider failover
   - `pricing.ts` — Unified cost calculation for Claude, Gemini, and Sarvam (replaces `MODEL_PRICING` in `usage.ts`)
@@ -211,32 +213,33 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 
 ### 2F-2: Gemini Vision Integration
 
-- [ ] Refactor `claude-vision.ts` → `vision-analysis.ts` to use the AI router
-- [ ] **Primary:** Gemini 2.5 Pro for batched image analysis (layout, typography, image treatment, copy patterns, logo detection)
-- [ ] **Fallback:** Claude Haiku 4.5 if Gemini fails or rate-limits
-- [ ] Maintain existing output schema — no downstream changes to aggregation/synthesis
-- [ ] Usage event recording for both providers (model, input/output tokens, cost)
+- [x] Refactor `claude-vision.ts` → `vision-analysis.ts` to use the AI router
+- [x] **Primary:** Gemini 2.5 Pro for batched image analysis (layout, typography, image treatment, copy patterns, logo detection)
+- [x] **Fallback:** Claude Haiku 4.5 if Gemini fails or rate-limits
+- [x] Maintain existing output schema — no downstream changes to aggregation/synthesis
+- [x] Usage event recording for both providers (model, input/output tokens, cost)
 
 ### 2F-3: Gemini Synthesis Fallback
 
-- [ ] Refactor `synthesis.ts` to use the AI router
-- [ ] **Primary:** Claude Sonnet 4.6 for design system synthesis (unchanged)
-- [ ] **Fallback:** Gemini 2.5 Pro if Claude fails or exceeds budget
-- [ ] Same token budget guards and structured output validation for both providers
+- [x] Refactor `synthesis.ts` to use the AI router
+- [x] **Primary:** Claude Sonnet 4.6 for design system synthesis (unchanged)
+- [x] **Fallback:** Gemini 2.5 Pro if Claude fails or exceeds budget
+- [x] Same token budget guards and structured output validation for both providers
 
 ### 2F-4: Sarvam AI Client + Translation Queue
 
-- [ ] New BullMQ queue `translation` for async translation jobs
-- [ ] `providers/sarvam.ts` — Translation + transliteration + TTS endpoints
-- [ ] Translation worker: picks jobs from queue, calls Sarvam, stores results
-- [ ] Rate limiting and retry logic for Sarvam API
+- [x] New BullMQ queue `translation` for async translation jobs
+- [x] `providers/sarvam.ts` — Translation + transliteration endpoints
+- [x] Translation worker: picks jobs from queue, calls Sarvam, stores results
+- [x] Rate limiting (5 req/60s) for Sarvam API
 
 ### 2F-5: Regional Variant Pipeline
 
-- [ ] Wire `regional_variants` table with Sarvam-powered translation/transliteration
-- [ ] Auto-translate design system copy guidelines for regional variants
-- [ ] Transliterate brand names across scripts (Latin ↔ Devanagari, etc.)
-- [ ] Store translated/transliterated content in `regional_variants` override fields
+- [x] Wire `regional_variants` table with Sarvam-powered translation/transliteration
+- [x] Auto-translate design system copy guidelines for regional variants
+- [x] Transliterate brand names across scripts (Latin ↔ Devanagari, etc.)
+- [x] Store translated/transliterated content in `regional_variants` override fields
+- [x] API routes: `POST/GET /api/brands/:id/design-system/variants`
 
 **Milestone:** Extraction pipeline runs with Gemini 2.5 Pro as primary vision model, Claude as fallback. Translation queue operational for regional variants.
 

@@ -1,12 +1,14 @@
 import '../lib/env.js';
 import type { Worker } from 'bullmq';
 
-import { visionWorker } from './claude-vision.js';
+import { visionWorker } from './vision-analysis.js';
 import { extractionOrchestratorWorker } from './extraction-orchestrator.js';
+import { translationWorker } from './translation.js';
 
 const workers: Worker[] = [
   visionWorker,
   extractionOrchestratorWorker,
+  translationWorker,
 ];
 
 console.log(`[workers] Starting ${workers.length} worker(s)…`);

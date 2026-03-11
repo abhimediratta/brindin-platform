@@ -16,6 +16,7 @@ export const QUEUE_NAMES = {
   PREPROCESSING: 'preprocessing',
   COLOR_EXTRACTION: 'color-extraction',
   VISION_ANALYSIS: 'vision-analysis',
+  TRANSLATION: 'translation',
 } as const;
 
 export const thumbnailQueue = new Queue(QUEUE_NAMES.THUMBNAILS, {
@@ -39,6 +40,10 @@ export const colorExtractionQueue = new Queue(QUEUE_NAMES.COLOR_EXTRACTION, {
 });
 
 export const visionAnalysisQueue = new Queue(QUEUE_NAMES.VISION_ANALYSIS, {
+  connection: redisConnection,
+});
+
+export const translationQueue = new Queue(QUEUE_NAMES.TRANSLATION, {
   connection: redisConnection,
 });
 
