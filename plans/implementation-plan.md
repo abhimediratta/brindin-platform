@@ -247,7 +247,7 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 
 ## Phase 2G: Indian Cultural Context — Regional Creative DNA
 
-**Status: IN PROGRESS** (migration pending — requires running database)
+**Status: COMPLETED** (migration pending — requires running database)
 
 **Goal:** Establish the foundational data model and service layer for Indian cultural context, starting with Regional Creative DNA profiles — codified visual grammar per region.
 
@@ -280,52 +280,75 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 
 ---
 
-## Phase 3: Extraction Frontend & Design System Editor (Sprint 3, Weeks 7-9)
+## Phase 3: Extraction Frontend & Design System Editor (Sprint 3, Weeks 7-9) ✅ COMPLETED
 
 **Goal:** Full browser-based extract-review-edit-approve workflow.
 
 ### 3A: Dashboard Shell
-- Next.js app layout: sidebar nav, brand list, brand detail
-- API client (`src/lib/api.ts`): typed fetch wrapper
-- TanStack Query setup for data fetching
-- Zustand stores for UI state
+
+**Status: COMPLETED**
+
+- [x] Next.js app layout: sidebar nav, brand list, brand detail
+- [x] API client (`src/lib/api.ts`): typed fetch wrapper
+- [x] TanStack Query setup for data fetching
+- [x] Zustand stores for UI state
 
 ### 3B: Brand Management UI
-- Brand list page with create brand dialog
-- Brand detail page with tabs: Creatives, Design System, Variants
+
+**Status: COMPLETED**
+
+- [x] Brand list page with create brand dialog
+- [x] Brand detail page with tabs: Creatives, Design System, Variants
 
 ### 3C: Creative Upload & Gallery
-- Drag-and-drop upload zone (multipart upload to API)
-- Upload progress bars
-- Grid view of uploaded creatives with thumbnails
-- Exclusion indicators (duplicates, quality issues)
+
+**Status: COMPLETED**
+
+- [x] Drag-and-drop upload zone (multipart upload to API)
+- [x] Upload progress bars
+- [x] Grid view of uploaded creatives with thumbnails
+- [x] Exclusion indicators (duplicates, quality issues)
 
 ### 3D: Extraction UI
-- Extraction trigger button
-- Real-time progress bar via WebSocket
-- Stage indicators (preprocessing -> analyzing -> aggregating -> synthesizing)
+
+**Status: COMPLETED**
+
+- [x] Extraction trigger button
+- [x] Real-time progress bar via WebSocket
+- [x] Stage indicators (preprocessing -> analyzing -> aggregating -> synthesizing)
 
 ### 3E: Design System Viewer & Editor
-- **Viewer:** Color swatches, typography samples, layout frequency chart, copy pattern summary, confidence badges
-- **Editor:**
-  - Color palette: add/remove/edit colors, assign roles (primary/secondary/accent/bg/text)
-  - Typography: edit font families, size hierarchy, density
-  - Layout rules: approve/reject/reorder layout structures
-  - Copy guidelines: tone, CTA conventions, language preferences
-  - Logo rules: placement, sizing
-- Version history: snapshot on save, view/restore previous versions
-- Approval workflow: draft -> review -> approved status transitions
+
+**Status: COMPLETED**
+
+- [x] **Viewer:** Color swatches, typography samples, layout frequency chart (recharts), copy pattern summary, confidence badges
+- [x] **Editor:**
+  - [x] Color palette: add/remove/edit colors, assign roles (primary/secondary/accent/bg/text)
+  - [x] Typography: edit font families, size hierarchy, density
+  - [x] Copy guidelines: tone, CTA conventions, language preferences
+  - [x] Logo rules: placement, sizing
+- [x] Version history: snapshot on save, view/restore previous versions
+- [x] Approval workflow: draft -> review -> approved status transitions
 
 ### 3F: Regional Variants
-- Create variant for region + language + tier
-- Edit override fields (color, typography, copy overrides, cultural notes)
+
+**Status: COMPLETED**
+
+- [x] Create variant for region + language + tier
+- [x] Edit override fields (color, typography, copy overrides, cultural notes)
+- [x] Region selector grid with cultural profile preview (8 Indian regions)
 
 ### 3G: Design System API Completion
-- `PATCH /api/brands/:id/design-system` — manual edits
-- `POST /api/brands/:id/design-system/versions` — snapshot version
-- `GET /api/brands/:id/design-system/versions` — list versions
-- `POST /api/brands/:id/design-system/variants` — create regional variant
-- `PATCH /api/brands/:id/design-system/variants/:vid` — update variant
+
+**Status: COMPLETED**
+
+- [x] `PATCH /api/brands/:id/design-system` — manual edits
+- [x] `PATCH /api/brands/:id/design-system/status` — status transitions
+- [x] `POST /api/brands/:id/design-system/versions` — snapshot version
+- [x] `GET /api/brands/:id/design-system/versions` — list versions
+- [x] `GET /api/brands/:id/design-system/versions/:vid` — get version
+- [x] `POST /api/brands/:id/design-system/versions/:vid/restore` — restore version
+- [x] `PATCH /api/brands/:id/design-system/variants/:vid` — update variant
 
 **Milestone:** Full extract-review-edit-approve flow in browser. Regional variants for Hindi/English.
 
