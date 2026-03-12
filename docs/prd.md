@@ -14,6 +14,8 @@ This product is a market intelligence and creative production platform purpose-b
 
 No existing product combines brand design system extraction + Indian market intelligence + creative generation constrained by both. Each incumbent solves one piece. The integration is the product.
 
+As agencies accumulate thousands of creatives, briefs, and intelligence entries across brands, the platform builds a **semantic creative memory** — every piece of work becomes instantly recallable by meaning, not filename. Past creative decisions surface automatically during production, turning the agency's accumulated experience into a compounding speed advantage.
+
 ---
 
 ## 2. Problem Statement
@@ -30,6 +32,8 @@ Agency knowledge lives in people's heads. With 30-40% annual attrition in mid-le
 - **Scale:** Agencies managing 10+ brands experience this continuously.
 
 The Brand Design System is the strongest knowledge-retention feature here — it captures the formalized visual and messaging identity that straddles market knowledge, client context, and operational knowledge. When a designer leaves, the design system stays.
+
+But knowledge fragility isn't only about departures — it's also about agencies being unable to recall their own creative history by meaning. An agency that produced 3,000 creatives last year across 15 brands has no way to answer "show me every testimonial-style creative we made for beauty brands targeting Tier 2" — because those creatives are locked behind filenames, folder structures, and the memory of the person who made them. The work exists. The ability to recall and build on it does not.
 
 ### 2.2 Regional Guesswork
 
@@ -125,7 +129,11 @@ Several companies occupy adjacent territory. Understanding why they haven't solv
 
 **DAMs and workflow tools (Air, Brandfolder, Frontify):** These store and organize assets. Some offer basic brand guideline functionality. None extract design systems from existing work, none connect brand systems to market intelligence, none generate creatives within those systems. They're filing cabinets, not strategists.
 
+**AI-powered search and retrieval (Pinecone, Vertex AI Search, Weaviate):** These provide vector search infrastructure — the technology layer for semantic retrieval. But technology is not product. An agency cannot deploy Pinecone and suddenly recall past creatives by meaning. The platform's creative memory is semantic search integrated into production workflows: it surfaces relevant precedents automatically during brief creation, creative generation, and campaign planning — not through a standalone search bar that requires the user to know what they're looking for. The difference is between "search as a feature" and "recall as a production accelerant."
+
 **Agency knowledge platforms (internal wikis, Notion, Google Drive):** Many agencies have tried to build internal knowledge bases about "what works where." These invariably decay within months because maintaining unstructured documentation is nobody's job. The knowledge needs to be a byproduct of the work, not a separate documentation effort — which is exactly what a platform that ingests campaign data and learns from it achieves.
+
+Their fundamental limitation isn't language support — it's that they treat regional adaptation as a translation problem. Indian advertising has distinct regional creative grammars: Tamil Nadu ads favor bold, dramatic typography with cinema-influenced trust signals; Bengali ads lean literary and artistic; Punjabi ads emphasize family warmth and abundance. These are structural creative differences that no global tool has codified, because no global tool was built around India's regional creative cultures.
 
 **The gap:** No product combines brand design system extraction + Indian market intelligence + creative generation constrained by both. Each incumbent solves one piece. The integration is the product.
 
@@ -228,13 +236,25 @@ The product operates across four interconnected layers that form a closed loop f
 When an agency onboards a brand, the platform builds a structured profile from data the agency already has: ad accounts, past creatives, briefs, e-commerce analytics. The Brand Design System lives here — the formalized visual and messaging identity extracted from a brand's existing creative work. This is the entry point: it delivers value before the agency commits to anything else, and it's the prerequisite that makes everything downstream work.
 
 **Layer 2: Market Intelligence Engine (The Brain)**
-Structured knowledge about Indian markets along five dimensions: Geographic Intelligence (languages, platforms, costs, culture per market), Category Intelligence (what works for beauty vs. fintech vs. fashion), Cultural Intelligence (festivals, sensitivities, language nuance), Creative Pattern Intelligence (visual and copy patterns that correlate with performance), and Audience Segment Models (richer models like "aspirational Tier 2 young professional" with documented behavioral characteristics and creative preferences backed by performance data). This is not infrastructure — it is a core layer that provides the strategic depth no other tool offers. Initially curated manually from public sources; enriched as agencies use the platform.
+Structured knowledge about Indian markets along six dimensions: Geographic Intelligence (languages, platforms, costs, culture per market), Category Intelligence (what works for beauty vs. fintech vs. fashion), Cultural Intelligence (festivals, sensitivities, language nuance), Creative Pattern Intelligence (visual and copy patterns that correlate with performance), Audience Segment Models (richer models like "aspirational Tier 2 young professional" with documented behavioral characteristics and creative preferences backed by performance data), and **Regional Creative DNA** (codified visual grammar per region — typography styles, color tendencies, layout density, copy tone, trust signals, and anti-patterns that define how advertising looks and feels in each Indian region. This goes beyond "what works" to "how ads are structured" — the creative grammar that makes a Tamil Nadu ad feel native vs. a translated template). This is not infrastructure — it is a core layer that provides the strategic depth no other tool offers. Initially curated manually from public sources; enriched as agencies use the platform.
 
 **Layer 3: Decision Support (The Interface)**
 Intelligence surfaces through specific, high-value workflows. MVP: Campaign Briefing Assistant (structured briefs with evidence-backed recommendations) and Creative Evaluation (pre-launch assessment against brand guidelines and cultural sensitivity). Post-MVP: Regional Expansion Planner, Strategic Reporting, and Competitive Intelligence. Each workflow combines brand context from Layer 1 with market intelligence from Layer 2 to produce actionable, evidence-backed outputs.
 
 **Layer 4: Creative Generation (The Output)**
 Where the Brand Design System provides visual rules, Market Intelligence provides strategic direction, and they converge to enable what no standalone AI creative tool can do: generate ad creatives that are simultaneously on-brand, market-appropriate, and performance-informed. The Regional Adaptation Engine is the differentiated capability — one master brief, adapted versions per region, automatically applying the right language, cultural references, price framing, and visual adaptations.
+
+### Creative Memory (Cross-Layer Capability)
+
+Creative memory is not a fifth layer — it is a capability that operates across all four layers, making the platform's accumulated knowledge instantly recallable by meaning. As agencies produce creatives, write briefs, build design systems, and accumulate intelligence entries, every piece of work is semantically embedded and becomes part of a searchable creative memory that deepens with use.
+
+**Recall by meaning:** An account manager writing a brief for a new skincare campaign can describe a creative direction in natural language — "minimalist product-on-white with Hindi testimonial copy" — and the platform surfaces the 5 most relevant past creatives across all brands the agency has worked on. No tags, no folders, no filenames — just meaning.
+
+**Brief-to-creative matching:** When an agency starts a new brief or enters a creative generation flow, the platform automatically surfaces 3-5 past creatives that match the direction — before the agency asks. This turns every new production task into an informed decision, not a cold start.
+
+**Creative similarity detection:** Beyond pixel-level perceptual hashing, semantic similarity identifies creatives that share conceptual approaches — same messaging strategy, similar visual composition, analogous cultural references — even when they look visually different. This catches unintentional repetition and surfaces proven approaches from the agency's own history.
+
+**Intelligence search:** Market intelligence entries, which are currently filterable by structured fields (geography, category, segment), become searchable by meaning. A media buyer can ask "what do we know about festive season pricing strategies for Tier 2 audiences" and get relevant intelligence entries across categories and regions.
 
 ### The Flywheel
 
@@ -250,13 +270,15 @@ Brand onboards
             -> System learns what works for this brand in this market
               -> Design system refines (performance-validated)
                 -> Creative generation improves
-                  -> Repeat
+                  -> Creative memory deepens (every creative enriches recall)
+                    -> Repeat
 ```
 
-Each revolution produces three compounding assets:
+Each revolution produces four compounding assets:
 1. **Better brand design systems** — performance data validates and refines visual rules per brand.
 2. **Better market intelligence** — aggregated patterns across brands reveal what works per market/category/moment.
 3. **Better creative generation** — the generator learns which choices correlate with performance for specific brand-market-audience combinations.
+4. **Deeper creative memory** — every creative processed, every brief written, every intelligence entry added makes semantic recall more useful. An agency with 6 months of production history on the platform has a qualitatively different experience than one starting fresh — past decisions surface automatically, proven approaches are instantly recallable, and new work builds on institutional memory rather than starting from scratch.
 
 This compounding intelligence is the moat. A competitor entering later can replicate any individual feature but not the accumulated intelligence from thousands of flywheel cycles.
 
@@ -607,13 +629,106 @@ Production accelerator for the highest-pressure creative moment of the year. An 
 - **Multi-faith brands:** Some brands serve audiences across religious lines. System should handle "inclusive festive" creative direction (seasonal celebration without specific religious imagery) as a valid option.
 - **Festival date shifts:** Hindu and Islamic festivals follow lunar calendars. System must use correct dates for the current year and adjust timing recommendations accordingly.
 
+### 6.6 Creative Memory & Semantic Search
+
+**Priority:** P1 — Transforms the platform from a production tool into an institutional memory system. Every creative, brief, and intelligence entry becomes recallable by meaning.
+
+**Description:**
+Semantic search across the platform's accumulated creative work, intelligence entries, design systems, and campaign briefs. This is not a search page — it is recall integrated into production workflows. When an agency starts any production task, the platform automatically surfaces relevant precedents from the agency's own history, turning accumulated experience into a production accelerant.
+
+The core insight: agencies already have the answers to most of their creative questions — buried in last quarter's work, a different brand's campaign, or an intelligence entry nobody remembers filing. Creative memory makes that accumulated knowledge instantly accessible by meaning, not by remembering where it was stored.
+
+**User Stories:**
+
+- As an account manager starting a new brief, I want past creatives that match this direction to surface automatically so that I can reference proven approaches and give my designer a head start — not a blank page.
+- As a designer, I want to describe what I'm looking for in natural language and find relevant work across all brands I have access to so that I can build on existing approaches instead of reinventing them.
+- As an agency founder onboarding a new brand, I want to find design systems similar to this brand's visual identity across my portfolio so that I can accelerate onboarding with relevant precedent.
+- As a media buyer, I want to search intelligence entries by meaning — "festive pricing for Tier 2 beauty" — so that I find relevant insights without knowing the exact filters or tags.
+- As a creative director reviewing a brief, I want the 5 most similar past creatives surfaced automatically so that I can assess whether we're breaking new ground or repeating ourselves — and whether repetition is the right call.
+
+**Capabilities (ordered by production value):**
+
+1. **Brief-to-Creative Matching:** When an agency enters a brief creation or creative generation flow, the platform automatically embeds the brief context and surfaces the 3-5 most relevant past creatives from the agency's history. This happens inline — no separate search step required. Each surfaced creative includes a relevance explanation ("Similar because: same product category, testimonial messaging approach, Tier 2 Hindi audience").
+
+2. **Semantic Creative Search:** Free-text search across all brand creatives the user has access to. "Minimalist product-on-white with benefit-led copy" returns relevant creatives regardless of filename, folder, or tags. Results ranked by semantic relevance with explanations.
+
+3. **Creative Similarity Detection:** Given any creative (uploaded or platform-generated), find conceptually similar work across the agency's portfolio. Goes beyond pixel-level perceptual hashing to identify shared messaging strategies, visual composition approaches, and cultural references — even when creatives look visually different. Useful for catching unintentional repetition and surfacing proven patterns.
+
+4. **Intelligence Search:** Semantic search over intelligence entries. Currently, intelligence is filterable by structured fields (geography, category, segment). Semantic search allows natural-language queries like "what works for premium skincare in non-metro markets" and returns relevant entries across categories and regions, ranked by relevance.
+
+5. **Design System Similarity:** Compare a new brand's visual identity against existing design systems in the agency's portfolio. Surfaces the most similar existing design systems, accelerating onboarding by identifying transferable patterns and proven approaches for visually similar brands.
+
+**Technical Approach:**
+- Embedding model: Google Gemini Embedding 2 (text embeddings for structured metadata, descriptions, and brief content)
+- Vector storage: pgvector extension on existing PostgreSQL infrastructure (no additional database)
+- Entities embedded: brand_creatives (analysis metadata + descriptions), intelligence_entries (content + structured fields), design_systems (extracted rules + descriptions), campaign_briefs (direction + recommendations)
+- Pipeline integration: embedding generation runs as a post-processing step in the existing BullMQ pipeline — after creative analysis or intelligence entry creation, embeddings are generated asynchronously
+- Privacy architecture: vector queries are scoped to the agency's own data; cross-agency vector queries are architecturally prevented at the query layer
+
+**Acceptance Criteria:**
+
+1. Embeddings are generated within 5 minutes of creative analysis or intelligence entry completion.
+2. Semantic search returns results within 2 seconds for corpora up to 50,000 creatives.
+3. Brief-to-creative matching surfaces relevant precedents inline during brief creation and creative generation flows — no separate search step required.
+4. Every search result includes a relevance explanation ("Surfaced because: similar visual composition, same product category, matching audience segment").
+5. Search respects brand and agency privacy boundaries — users only see results from brands they have access to, and cross-agency queries are never executed.
+6. Graceful degradation for small corpus: when a brand has fewer than 20 creatives, the system expands search scope to the agency's full portfolio (with clear labeling: "Showing results across your agency portfolio — this brand has limited creative history").
+7. Confidence system integration: search results from intelligence entries carry their original confidence tier tags.
+8. Search results are actionable — each result can be opened, used as a reference in the current workflow, or dismissed with one action.
+
+**Edge Cases & Constraints:**
+
+- **New brand with few creatives:** Expand search scope to the agency's full portfolio with clear labeling. Surface cross-brand results as "similar work from your portfolio" — not as brand-specific precedent.
+- **Cross-brand privacy within an agency:** All brands managed by an agency are searchable by that agency's team. Cross-agency search is never permitted.
+- **Embedding drift on model version change:** When the embedding model is updated, support batch re-embedding of existing entities. Flag search results that mix embedding versions until re-embedding is complete.
+- **Search result opacity:** Every result must explain why it was surfaced. "Relevant" without explanation erodes trust. Explanations reference specific dimensions: messaging approach, visual style, audience match, category similarity.
+- **Multilingual content:** Embeddings must handle Hindi, English, and Hinglish content without degradation. Search in one language should surface relevant results in other languages when the concepts match.
+- **Stale results:** Results from creatives older than 12 months carry a recency indicator. The system does not suppress older work but signals its age.
+
+---
+
+### 6.7 Indian Cultural Context Layer
+
+**Priority:** P1
+
+**Description:** A structural cultural intelligence layer that makes Indian cultural context architectural — baked into how creatives are constrained, generated, and validated. Rather than treating regional adaptation as a translation problem, this layer codifies the visual grammar, creative aesthetics, trust mechanics, price psychology, and cultural calendars that make Indian advertising fundamentally different from global advertising — and that make advertising in Tamil Nadu fundamentally different from advertising in Punjab.
+
+**Key capabilities (built incrementally):**
+
+1. **Regional Creative DNA Profiles** — Codified visual grammar per region defining typography style, color tendencies, layout density, copy tone, trust signals, visual motifs, anti-patterns, and language-specific creative devices. Not language or translation rules — creative aesthetics. 8 regions initially: TN, WB, PB, KL, MH, KA, GJ, DL-NCR.
+
+2. **Cultural Constraint Engine** — Hard blocks and soft warnings that gate creative generation. Prevents cultural mistakes: no beef imagery in Hindu-majority markets, color sensitivities, religious motif rules, regional compliance. Constraints evaluated both deterministically and via AI for nuanced checks.
+
+3. **Tier-Aware Creative Systems** — Changes layout, pricing display, trust signals, copy style, and visual aesthetics by market tier. Metro ≠ Tier 2 ≠ Tier 3 in everything — not just language.
+
+4. **Vernacular-First Creative Thinking** — Generate concepts in regional language first, not English-then-translate. Hindi wordplay, Tamil alliteration, Bengali poetry as creative devices that can't be achieved through translation.
+
+5. **WhatsApp-Native Formats** — Creatives designed for India's commerce layer: forward-to-family format, WhatsApp Status dimensions, catalog card formats, text readable at thumbnail size.
+
+6. **Cultural Calendar Engine** — Full commercial calendar beyond festivals: IPL season, board exam results, wedding seasons (vary by region + lunar calendar), harvest cycles, monsoon patterns, school admissions, government scheme announcements.
+
+7. **Cultural Performance Database** — Track which cultural creative patterns actually convert, by region and tier. "Family approval" vs "individual identity", gold-anchored vs EMI pricing, celebrity vs UGC — which wins where?
+
+**Why this matters for differentiation:**
+- Global AI creative tools treat India as a language problem (add Hindi). This layer treats India as a cultural architecture problem.
+- Regional Creative DNA profiles make generated creatives *feel* native to each region — not translated Western templates.
+- Cultural constraints prevent brand-killing cultural errors (flagged as existential risk in Section 12).
+- The performance database creates a compounding moat: as campaigns run, the system learns which cultural patterns work where — intelligence that gets harder to replicate over time.
+
+**Acceptance Criteria:**
+1. Regional profiles exist for 8+ major regions with codified creative DNA.
+2. Creative generation (when built) applies regional profiles as structural constraints, not optional suggestions.
+3. Cultural constraint engine blocks generation that would violate hard cultural rules.
+4. Performance data feeds back into cultural pattern recommendations.
+
+---
+
 ### What's Explicitly NOT in the MVP
 
 - Video generation
 - Self-serve brand tier
 - Competitive intelligence
 - More than one vertical (beauty/fashion only)
-- More than two languages (Hindi + English)
 - Full market intelligence network (curated data only, not yet aggregated from agencies)
 - Ad account API connections (CSV upload for data ingestion)
 
@@ -667,6 +782,10 @@ Direct access for small D2C brands (Rs.5-50L/month ad spend) without a full-serv
 - **Agency co-branding:** When an agency onboards a brand, the brand's experience is agency-branded. The platform is infrastructure, not a competitor.
 - **Agency referral economics:** Brands that outgrow self-serve are referred to partner agencies on the platform. Agencies that bring brands onto the platform get preferential pricing.
 - **Different entry points, same flywheel:** Self-serve brands still contribute (with consent) to the market intelligence layer, enriching the data available to agencies. Everyone benefits.
+
+### 7.8 Cross-Modal Creative Discovery
+
+The mature form of creative memory: cross-modal retrieval across the full corpus. An agency uploads a competitor's creative and asks "show me everything we've made that's conceptually similar" — the system finds matching work regardless of whether the similarity is visual, textual, or strategic. Text-to-image retrieval ("find creatives that match this brief description"), image-to-text retrieval ("what intelligence entries are relevant to this creative style"), and image-to-image retrieval ("find visually and conceptually similar work") enable a unified creative memory that operates across modalities. This requires multimodal embedding models and is dependent on the maturity of the semantic search infrastructure built in Section 6.6.
 
 ---
 
@@ -805,6 +924,34 @@ Direct access for small D2C brands (Rs.5-50L/month ad spend) without a full-serv
 8. Post-campaign: performance data feeds back into festival intelligence
 ```
 
+### 8.7 Semantic Creative Recall
+
+Creative memory is integrated into production workflows — it is not a standalone search page.
+
+```
+1. Agency starts any production workflow
+   (brief creation, creative generation, campaign planning)
+2. System automatically embeds the current context
+   (brief parameters, product category, target audience, creative direction)
+3. System surfaces top 3-5 relevant precedents inline:
+   - Past creatives matching this direction
+   - Relevant intelligence entries
+   - Similar design system patterns
+   - Each with a relevance explanation
+4. Agency acts on surfaced precedents:
+   - Use as reference (attach to brief or share with designer)
+   - Dismiss (not relevant for this task)
+   - Search more broadly (opens semantic search with current context pre-filled)
+5. If agency searches more broadly:
+   - Free-text query across creatives, intelligence, and briefs
+   - Results scoped to agency's brands
+   - Each result includes relevance explanation and recency indicator
+6. Selected precedents are linked to the current workflow
+   (brief references them, designer sees them alongside the generation output)
+```
+
+**Key principle:** The system surfaces relevant work without being asked. The agency's creative history becomes an active participant in production, not a passive archive.
+
 ---
 
 ## 9. Information Architecture
@@ -815,7 +962,7 @@ Direct access for small D2C brands (Rs.5-50L/month ad spend) without a full-serv
 The top-level entity. Represents a D2C brand managed on the platform. Contains brand profile (category, target markets, positioning), connected data sources (ad accounts, analytics), and performance history.
 
 **Design System**
-Belongs to a Brand. The formalized visual and messaging identity: color palette, typography, layouts, image treatment, copy tone, logo rules. Contains a master system and zero or more Regional Variants. Evolves over time as new creatives and performance data inform refinements. Tracks version history.
+Belongs to a Brand. The formalized visual and messaging identity: color palette, typography, layouts, image treatment, copy tone, logo rules. Contains a master system and zero or more Regional Variants. Evolves over time as new creatives and performance data inform refinements. Tracks version history. Contains a semantic embedding vector enabling design system similarity comparison across the agency's portfolio.
 
 **Regional Variant**
 Belongs to a Design System. Defines how the brand adapts for a specific geography or language: typography adjustments (e.g., larger Devanagari text), color adaptations, cultural motifs, language register rules, price framing conventions.
@@ -824,19 +971,22 @@ Belongs to a Design System. Defines how the brand adapts for a specific geograph
 Belongs to a Brand. A planned or executed advertising effort with defined geography, audience, objective, timeframe, and budget. Contains an optional Campaign Brief and zero or more Creatives.
 
 **Campaign Brief**
-Belongs to a Campaign. The strategic document guiding creative production: creative direction, language recommendations, platform allocation, cultural considerations, pitfalls. Each recommendation carries evidence metadata (source, confidence, sample size). Optional — creative generation can proceed without one.
+Belongs to a Campaign. The strategic document guiding creative production: creative direction, language recommendations, platform allocation, cultural considerations, pitfalls. Each recommendation carries evidence metadata (source, confidence, sample size). Optional — creative generation can proceed without one. Contains a semantic embedding vector for brief-to-creative matching and precedent recall.
 
 **Creative**
-Belongs to a Campaign (or directly to a Brand for quick-generate creatives without a campaign). An individual ad creative asset. Can be human-made (uploaded) or platform-generated. Carries metadata: target platform, format, language, region. If generated, includes generation rationale. If evaluated, includes evaluation results. Performance data attached when available.
+Belongs to a Campaign (or directly to a Brand for quick-generate creatives without a campaign). An individual ad creative asset. Can be human-made (uploaded) or platform-generated. Carries metadata: target platform, format, language, region. If generated, includes generation rationale. If evaluated, includes evaluation results. Performance data attached when available. Contains a semantic embedding vector generated from analysis metadata and descriptions, enabling recall by meaning.
 
 **Evaluation**
 Belongs to a Creative. A structured assessment: brand compliance, cultural sensitivity, red flags, improvement suggestions. Each assessment point references the brand's design system rules or cultural sensitivity guidelines.
 
 **Market Intelligence**
-Platform-level entity (not brand-specific). Structured knowledge organized by geography, category, cultural moment, creative pattern, and audience segment. Each intelligence entry carries confidence level, source, sample size, and freshness date.
+Platform-level entity (not brand-specific). Structured knowledge organized by geography, category, cultural moment, creative pattern, and audience segment. Each intelligence entry carries confidence level, source, sample size, and freshness date. Each entry contains a semantic embedding vector enabling natural-language search across the intelligence corpus.
 
 **Festival Intelligence**
 A specialized subset of Market Intelligence. Cultural significance, visual language, creative angles, timing, and historical performance — organized by festival and region.
+
+**Regional Creative Profile**
+Platform-level entity (not brand-specific). Codified creative grammar for a geographic region: typography style, color tendencies, layout density, copy tone, trust signals, visual motifs, anti-patterns, and language-specific creative devices. Applied as structural constraints during creative generation — shapes how creatives look and feel for each target region. Distinct from Regional Variants (which are brand-specific overrides) — Regional Creative Profiles are market-level creative grammar that applies across all brands targeting that region.
 
 ### Entity Relationships
 
@@ -860,6 +1010,7 @@ Market Intelligence (platform-level)
  |-- Creative Pattern Intelligence
  |-- Audience Segment Models
  |-- Festival Intelligence
+ |-- Regional Creative Profiles
 ```
 
 **Key relationships:**
@@ -868,6 +1019,7 @@ Market Intelligence (platform-level)
 - Creative Evaluation checks against Design System + cultural sensitivity rules.
 - Performance Data on Creatives feeds back into both the Brand's Design System (brand-specific learning) and Market Intelligence (aggregated, anonymized patterns).
 - Festival Intelligence connects to Regional Variants within Design Systems to produce festival-specific regional creatives.
+- Semantic embedding vectors on Creatives, Campaign Briefs, Design Systems, and Intelligence Entries enable cross-entity recall by meaning. Vector queries are architecturally scoped to the agency's own data — cross-agency vector similarity queries are prevented at the query layer, not just the application layer.
 
 ---
 
@@ -914,6 +1066,9 @@ The following tables provide granular tracking targets that support the categori
 | Briefs generated | Campaign briefs created per month | 100+ |
 | Evaluations run | Creative evaluations per month | 500+ |
 | Design system engagement | % of brands with design system updated in last 30 days | >60% |
+| Semantic searches | Semantic search queries per month | 500+ |
+| Precedent recall rate | % of production workflows where auto-surfaced precedents are viewed | >40% |
+| Precedent-to-action rate | % of viewed precedents that are used as reference or attached to workflow | >15% |
 
 **Value Metrics (Is the product delivering value?)**
 
@@ -925,6 +1080,14 @@ The following tables provide granular tracking targets that support the categori
 | Brief creation time | Time from input to finalized brief | <30 min (vs. 3-5 hours baseline) |
 | Creative consistency | % of creatives passing brand guideline evaluation | >85% (vs. unmeasured baseline) |
 | Festival campaign efficiency | Time to produce multi-region festival creative set | <1 day (vs. 2-3 days baseline) |
+| Brief creation with precedent | % of briefs created with at least one auto-surfaced precedent referenced | >30% |
+| Search-to-production time | Time from semantic search query to using a result in a production workflow | <2 min |
+
+**Intelligence Quality (Is creative memory useful?)**
+
+| Metric | Definition | Target |
+|--------|-----------|--------|
+| Precedent relevance | % of auto-surfaced precedents rated relevant by users (when feedback is given) | >80% |
 
 **Business Metrics (Is this a business?)**
 
@@ -952,8 +1115,9 @@ The following tables provide granular tracking targets that support the categori
 - Compile market intelligence for MVP scope (beauty/fashion vertical, 5 states, metro/Tier 1/Tier 2) from public sources: Meta Ad Library analysis, IAMAI reports, Census demographics, platform-published data, industry surveys.
 - Build festival intelligence for one season (Diwali or Navratri) with subject-matter verification.
 - Establish the confidence framework: verified facts vs. observed patterns vs. directional inferences vs. stated unknowns.
+- Set up pgvector extension on PostgreSQL and integrate embedding generation into the creative analysis pipeline as a post-processing step.
 
-**Exit criteria:** Design system extraction produces accurate results for test brands. Template-based creative generation produces output that test designers prefer to refine rather than redo. Intelligence base covers MVP scope with sufficient depth. Brand Design System Builder is at production quality — this is the entry point and must be exceptional.
+**Exit criteria:** Design system extraction produces accurate results for test brands. Template-based creative generation produces output that test designers prefer to refine rather than redo. Intelligence base covers MVP scope with sufficient depth. Brand Design System Builder is at production quality — this is the entry point and must be exceptional. Embedding generation runs reliably as a pipeline post-processing step.
 
 ### Phase 2: Early Agency Partnerships (Months 1-6)
 
@@ -977,6 +1141,7 @@ The following tables provide granular tracking targets that support the categori
 - Is the quick-generate flow (design system + assets -> creatives) delivering on the speed promise?
 - Do briefs contain insights the agency didn't already know?
 - Does the festival module demonstrate clear value during peak season?
+- Does creative memory surface relevant precedents that agencies find useful? Are auto-surfaced results acted on or dismissed?
 
 **Exit criteria:** At least 3 agencies actively using the platform for live campaigns (not just testing). At least one agency willing to pay. Designer adoption is the key signal — measure by whether designers choose to use generated output, not by capability metrics.
 
@@ -990,6 +1155,7 @@ The following tables provide granular tracking targets that support the categori
 - Aggregate anonymized performance data across brands to enrich market intelligence.
 - Begin expanding geographic coverage (add more states, deeper Tier 2/3 intelligence).
 - Launch post-MVP features based on usage data: Advanced Creative Generation, In-Platform Creative Editing.
+- Creative memory depth becomes a visible retention advantage — agencies with 6+ months of history experience qualitatively better precedent recall than new users.
 
 ### Phase 4: Network Effects (Months 12-18)
 
@@ -997,6 +1163,7 @@ The following tables provide granular tracking targets that support the categori
 
 **Activities:**
 - New agencies joining get richer intelligence than early adopters did initially.
+- Creative memory corpus across agencies provides increasingly useful precedent recall.
 - Begin opening the self-serve brand channel in limited form.
 - Expand category coverage to fintech, food & beverage, health & wellness.
 - Launch Regional Expansion Planner, Competitive Intelligence.
@@ -1012,6 +1179,7 @@ The following tables provide granular tracking targets that support the categori
 - Explore video creative generation.
 - Expand to additional verticals and geographies.
 - Self-serve brand channel fully operational.
+- Cross-modal creative discovery: image-to-text, text-to-image, and image-to-image retrieval across the full corpus (Section 7.8).
 
 ---
 
@@ -1035,6 +1203,10 @@ The following tables provide granular tracking targets that support the categori
 
 **Talent risk.** Building this requires people who understand both Indian advertising and AI/ML engineering. This intersection is extremely small. _Mitigation:_ Advisory board of senior agency professionals. Engineering team doesn't need ad industry experience if the product and data teams do. But the founding team must have at least one person with deep Indian agency experience.
 
+**Embedding quality for Indian creative content.** Semantic embeddings are trained predominantly on English-language web content. Hindi, Hinglish, and Indian advertising terminology may produce lower-quality embeddings, resulting in less relevant search results for Indian-language creatives. _Mitigation:_ Supplement embeddings with structured metadata from the existing Gemini vision analysis pipeline — creative descriptions, extracted text, visual style classifications, and category tags. Hybrid retrieval (vector similarity + structured metadata matching) ensures useful results even when embeddings alone underperform. Monitor embedding quality across languages and iterate.
+
+**Vector index maintenance at scale.** As the creative corpus grows to tens of thousands of entries per agency, vector search performance and index freshness become operational concerns. _Mitigation:_ Use HNSW indexes on pgvector for sub-second approximate nearest neighbor search. Partition vector indexes by agency to prevent cross-agency data leakage and maintain query performance. Plan for periodic index rebuilds when embedding model versions change. Monitor query latency as corpus grows and adjust index parameters proactively.
+
 ### Known Unknowns
 
 - Will agencies actually connect ad accounts, or will data ingestion be friction-heavy?
@@ -1050,7 +1222,7 @@ These should be resolved through the early agency partnerships in Phase 2, not b
 
 ### Production First
 
-Every feature answers the question: "How does this help produce more, better, faster creative work for more brands?" Intelligence that doesn't surface through the production workflow is infrastructure, not product. If a feature can't be connected to a designer producing better output or an agency supporting more brands, it's not ready to ship — it's a backend capability waiting for a production-facing interface.
+Every feature answers the question: "How does this help produce more, better, faster creative work for more brands?" Intelligence that doesn't surface through the production workflow is infrastructure, not product. If a feature can't be connected to a designer producing better output or an agency supporting more brands, it's not ready to ship — it's a backend capability waiting for a production-facing interface. Search exists to accelerate production, not to organize a library — creative memory surfaces relevant work inline during production workflows, not through a standalone search interface that requires the user to stop working and go looking.
 
 ### Evidence Over Opinion
 
@@ -1093,7 +1265,7 @@ The pricing structure affects feature design and tier differentiation across the
 
 ### Explicitly Not This Product
 
-- **Digital Asset Management (DAM).** File storage and retrieval is a supporting function, not the product. Creatives are ingested for analysis and design system extraction, not for asset management.
+- **Digital Asset Management (DAM).** File storage and retrieval is a supporting function, not the product. Creatives are ingested for analysis and design system extraction, not for asset management. The platform's semantic creative memory — recall by meaning for production acceleration — is distinct from DAM search functionality (organizing, tagging, browsing, and retrieving files by metadata). Creative memory exists to surface relevant precedent during production workflows, not to help users find and manage files. There is no folder structure, no tagging taxonomy, no browse-by-category interface. If an agency needs a DAM, they use a DAM alongside this platform.
 - **Reporting tool.** There are 50 reporting tools. This is a creative production platform that happens to produce reports as one output.
 - **Generic AI creative generator.** Tools like AdCreative.ai generate from templates with no brand or market context. This platform generates within a brand's design system and informed by market-specific intelligence. The approach prioritizes template-based reliability over impressive-but-unusable fully generative output — production quality for Indian markets (proper Devanagari rendering, culturally native aesthetics) matters more than demo-worthy generation capabilities.
 - **Brand identity agency replacement.** Does not create brands from nothing. Takes what exists — however fragmented — and systematizes it.

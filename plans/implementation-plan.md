@@ -245,6 +245,41 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
 
 ---
 
+## Phase 2G: Indian Cultural Context — Regional Creative DNA
+
+**Status: IN PROGRESS** (migration pending — requires running database)
+
+**Goal:** Establish the foundational data model and service layer for Indian cultural context, starting with Regional Creative DNA profiles — codified visual grammar per region.
+
+### 2G-1: Schema & Shared Types
+- [x] Add `regional_creative_profiles` table to `packages/backend/src/db/schema.ts`
+- [x] Create `packages/shared/src/schemas/regional-profile.ts` with Zod schemas for all JSONB dimensions
+- [x] Update `packages/shared/src/schemas/index.ts` barrel export
+- [ ] Generate migration (requires running database)
+
+### 2G-2: Service Layer
+- [x] Create `packages/backend/src/modules/cultural-context/regional-profile.service.ts`
+  - CRUD operations: getProfile, getProfilesForRegions, getAllActive, upsert, deactivate
+  - Follow existing service pattern from `brand.service.ts`
+
+### 2G-3: API Routes
+- [x] Create `packages/backend/src/modules/cultural-context/routes.ts`
+  - GET /api/cultural/regions — list all active profiles
+  - GET /api/cultural/regions/:code — get single profile
+  - PUT /api/cultural/regions/:code — upsert profile
+  - DELETE /api/cultural/regions/:code — deactivate (soft delete)
+- [x] Mount routes in `packages/backend/src/server/index.ts`
+
+### 2G-4: Seed Data (8 Regions)
+- [x] Create `packages/backend/src/modules/cultural-context/seeds/regional-profiles.seed.ts`
+  - AI-drafted profiles for: TN, WB, PB, KL, MH, KA, GJ, DL-NCR
+  - Each profile: typography style, color tendencies, layout density, copy tone, trust signals, visual grammar, anti-patterns, language devices
+- [x] Add `seed:regional-profiles` script to `packages/backend/package.json`
+
+**Milestone:** `GET /api/cultural/regions/TN` returns complete Tamil Nadu creative DNA profile. Seed data for 8 regions queryable via API.
+
+---
+
 ## Phase 3: Extraction Frontend & Design System Editor (Sprint 3, Weeks 7-9)
 
 **Goal:** Full browser-based extract-review-edit-approve workflow.
@@ -337,11 +372,19 @@ The phase-1 plan defines an 18-week, 7-sprint roadmap. This implementation plan 
   - Map brand colors/fonts/rules to CSS variables
   - Template selection based on brand's dominant layout patterns
   - Logo placement per design system rules
+- [ ] Wire regional creative profiles into constraint engine
+  - Load profile for target region during generation
+  - Apply typography, color, layout constraints from regional DNA
+  - Inject regional creative DNA into AI generation prompts
 
 ### 4F: Variant Selection & Generation Orchestration
 - `src/modules/creative-gen/variant-selector.ts`:
   - Ensure diversity: layout x copy approach x visual emphasis x color scheme
   - 4-8 variants covering at least 3 distinct creative approaches
+- [ ] Apply regional creative DNA to variant selection
+  - Tier-aware creative rules (layout density, pricing display, trust signals)
+  - Regional color tendencies influence template selection
+  - Copy tone from regional profile guides copy generation
 - `src/modules/creative-gen/orchestrator.ts`:
   - Job orchestration: copy gen + image preprocessing (parallel) -> rendering -> upload
   - Rationale generation per variant
@@ -454,6 +497,10 @@ brindin-platform/
           brand/routes.ts, service.ts
           design-system/routes.ts, orchestrator.ts, aggregation.ts
           creative-gen/routes.ts, orchestrator.ts, constraint-engine.ts, variant-selector.ts
+          cultural-context/
+            regional-profile.service.ts
+            routes.ts
+            seeds/regional-profiles.seed.ts
           intelligence/routes.ts, service.ts, seed.ts
           evaluation/routes.ts, checker.ts
         workers/
@@ -508,3 +555,4 @@ After each phase:
 | AI - Synthesis | Claude Sonnet 4.6 (primary) + Gemini 2.5 Pro (fallback) |
 | AI - Copy Generation | Claude Sonnet 4.6 + Gemini 2.5 Pro (parallel, for voice diversity) |
 | AI - Translation | Sarvam AI |
+| Cultural Intelligence | Regional Creative DNA profiles (8 regions, extensible) |

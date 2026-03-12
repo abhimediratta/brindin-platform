@@ -243,7 +243,29 @@ export const intelligenceEntries = pgTable(
   ],
 );
 
-// ─── 12. Usage Events ───────────────────────────────────────────────
+// ─── 12. Regional Creative Profiles ────────────────────────────────
+
+export const regionalCreativeProfiles = pgTable('regional_creative_profiles', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  regionCode: text('region_code').notNull().unique(),
+  regionName: text('region_name').notNull(),
+  primaryLanguages: text('primary_languages').array().notNull(),
+  typographyStyle: jsonb('typography_style').notNull(),
+  colorTendencies: jsonb('color_tendencies').notNull(),
+  layoutDensity: jsonb('layout_density').notNull(),
+  copyTone: jsonb('copy_tone').notNull(),
+  trustSignals: jsonb('trust_signals').notNull(),
+  visualGrammar: jsonb('visual_grammar').notNull(),
+  whatFails: jsonb('what_fails'),
+  languageDevices: jsonb('language_devices'),
+  confidenceTier: integer('confidence_tier').notNull().default(1),
+  source: text('source').notNull(),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
+});
+
+// ─── 13. Usage Events ──────────────────────────────────────────────
 
 export const usageEvents = pgTable(
   'usage_events',
@@ -268,7 +290,7 @@ export const usageEvents = pgTable(
   ],
 );
 
-// ─── 13. Usage Summaries ─────────────────────────────────────────────
+// ─── 14. Usage Summaries ────────────────────────────────────────────
 
 export const usageSummaries = pgTable(
   'usage_summaries',
@@ -301,7 +323,7 @@ export const usageSummaries = pgTable(
   ],
 );
 
-// ─── 14. Campaign Briefs ─────────────────────────────────────────────
+// ─── 15. Campaign Briefs ────────────────────────────────────────────
 
 export const campaignBriefs = pgTable('campaign_briefs', {
   id: uuid('id').primaryKey().defaultRandom(),

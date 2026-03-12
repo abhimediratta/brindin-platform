@@ -10,3 +10,4 @@ export * from './generated-variant.js';
 export * from './intelligence.js';
 export * from './usage.js';
 export * from './campaign-brief.js';
+export * from './regional-profile.js';

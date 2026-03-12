@@ -11,7 +11,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "dev:workers": "tsx watch src/workers/start.ts"
+    "dev:workers": "tsx watch src/workers/start.ts",
+    "seed:regional-profiles": "tsx src/modules/cultural-context/seeds/regional-profiles.seed.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
