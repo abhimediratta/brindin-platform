@@ -2,7 +2,7 @@
 
 import { Globe } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { EmptyState } from '@/components/shared/empty-state';
+import { EmptyState } from '@/components/empty-state';
 import { VariantCard } from './variant-card';
 
 interface VariantListProps {
