@@ -9,6 +9,7 @@ import { authMiddleware } from './middleware/auth.js';
 import healthRoutes from './routes/health.js';
 import brandRoutes from './routes/brands.js';
 import extractionRoutes from './routes/extraction.js';
+import designSystemRoutes from './routes/design-system.js';
 import culturalRoutes from '../modules/cultural-context/routes.js';
 import { setupWebSocket } from './ws.js';
 
@@ -26,6 +27,7 @@ app.use('/api/*', authMiddleware);
 app.route('/api', healthRoutes);
 app.route('/api', brandRoutes);
 app.route('/api', extractionRoutes);
+app.route('/api', designSystemRoutes);
 app.route('/api', culturalRoutes);
 
 // WebSocket
