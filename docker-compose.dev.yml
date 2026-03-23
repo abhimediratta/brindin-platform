@@ -1,0 +1,74 @@
+services:
+  backend:
+    build: !reset null
+    image: node:20-alpine
+    working_dir: /app
+    command: >
+      sh -c "corepack enable &&
+             corepack prepare pnpm@9.15.4 --activate &&
+             pnpm install &&
+             pnpm --filter @brindin/shared build &&
+             pnpm --filter @brindin/backend dev"
+    volumes:
+      - .:/app
+      - backend_node_modules:/app/node_modules
+      - backend_pkg_modules:/app/packages/backend/node_modules
+      - shared_pkg_modules:/app/packages/shared/node_modules
+    environment:
+      NODE_ENV: development
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  node-workers:
+    build: !reset null
+    image: node:20-alpine
+    working_dir: /app
+    command: >
+      sh -c "corepack enable &&
+             corepack prepare pnpm@9.15.4 --activate &&
+             pnpm install &&
+             pnpm --filter @brindin/shared build &&
+             pnpm --filter @brindin/backend dev:workers"
+    volumes:
+      - .:/app
+      - backend_node_modules:/app/node_modules
+      - backend_pkg_modules:/app/packages/backend/node_modules
+      - shared_pkg_modules:/app/packages/shared/node_modules
+    environment:
+      NODE_ENV: development
+
+  frontend:
+    build: !reset null
+    image: node:20-alpine
+    working_dir: /app
+    command: >
+      sh -c "corepack enable &&
+             corepack prepare pnpm@9.15.4 --activate &&
+             pnpm install &&
+             pnpm --filter @brindin/shared build &&
+             pnpm --filter @brindin/frontend dev"
+    volumes:
+      - .:/app
+      - frontend_root_modules:/app/node_modules
+      - frontend_node_modules:/app/packages/frontend/node_modules
+      - frontend_next:/app/packages/frontend/.next
+      - shared_pkg_modules:/app/packages/shared/node_modules
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+
+  python-workers:
+    volumes:
+      - ./packages/workers-py/src:/app/src
+
+volumes:
+  backend_node_modules:
+  backend_pkg_modules:
+  shared_pkg_modules:
+  frontend_root_modules:
+  frontend_node_modules:
+  frontend_next:

@@ -54,6 +54,107 @@ services:
       echo 'Bucket brindin-assets created successfully';
       "
 
+  # ---------- Application services ----------
+
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    image: brindin-backend:latest
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/brindin
+      REDIS_URL: redis://redis:6379
+      R2_ENDPOINT: http://minio:9000
+      R2_ACCESS_KEY: minioadmin
+      R2_SECRET_KEY: minioadmin
+      R2_BUCKET: brindin-assets
+      PORT: "3001"
+      API_KEY: ${API_KEY:-dev-key}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SARVAM_API_KEY: ${SARVAM_API_KEY:-}
+      GOOGLE_GENAI_API_KEY: ${GOOGLE_GENAI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  node-workers:
+    image: brindin-backend:latest
+    command: ["node", "packages/backend/dist/workers/start.js"]
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/brindin
+      REDIS_URL: redis://redis:6379
+      R2_ENDPOINT: http://minio:9000
+      R2_ACCESS_KEY: minioadmin
+      R2_SECRET_KEY: minioadmin
+      R2_BUCKET: brindin-assets
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SARVAM_API_KEY: ${SARVAM_API_KEY:-}
+      GOOGLE_GENAI_API_KEY: ${GOOGLE_GENAI_API_KEY:-}
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      HOSTNAME: "0.0.0.0"
+      PORT: "3000"
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  python-workers:
+    build:
+      context: ./packages/workers-py
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/brindin
+      REDIS_URL: redis://redis:6379
+      R2_ENDPOINT: http://minio:9000
+      R2_ACCESS_KEY: minioadmin
+      R2_SECRET_KEY: minioadmin
+      R2_BUCKET: brindin-assets
+    ports:
+      - "3002:3002"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  migrate:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+      target: build
+    command: ["npx", "drizzle-kit", "migrate"]
+    working_dir: /app/packages/backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/brindin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    profiles:
+      - tools
+
 volumes:
   pgdata:
   minio-data:
