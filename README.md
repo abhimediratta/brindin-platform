@@ -47,6 +47,8 @@ brindin-platform/
 
 ## Getting Started
 
+Two options: run `bash scripts/setup-local.sh` for the one-shot **hybrid** setup (infra in Docker, app on host), or jump to [Running with Docker](#running-with-docker) for the full-container flow.
+
 ```bash
 # Clone & install
 git clone <repo-url> && cd brindin-platform
@@ -82,6 +84,56 @@ python -m src.main
 - Frontend: `http://localhost:3000`
 - MinIO Console: `http://localhost:9001` (minioadmin/minioadmin)
 
+## Running with Docker
+
+If you prefer not to install Node.js or Python on the host, the full stack can run inside Docker Compose. Two compose files drive this:
+
+- `docker-compose.yml` — production baseline: built images for `backend`, `node-workers`, `frontend`, `python-workers` alongside `postgres`, `redis`, `minio`, and a one-shot `minio-init` that creates the `brindin-assets` bucket.
+- `docker-compose.dev.yml` — dev overlay: swaps `backend`, `node-workers`, and `frontend` onto a `node:20-alpine` base, bind-mounts the repo into `/app`, keeps `node_modules` in named volumes, and runs `pnpm dev` for hot reload. `python-workers` gets a bind-mount of `packages/workers-py/src`.
+
+Service ports match the hybrid flow: `3000` (frontend), `3001` (backend), `3002` (python-workers), `5432` (postgres), `6379` (redis), `9000`/`9001` (MinIO API/console).
+
+### Dev mode (hot reload)
+
+```bash
+cp .env.example .env      # MinIO defaults in .env.example work as-is
+pnpm docker:dev           # docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+# First run or after Dockerfile changes:
+pnpm docker:dev:build     # adds --build
+```
+
+The compose file reads secrets from `.env` (`API_KEY`, `ANTHROPIC_API_KEY`, `SARVAM_API_KEY`, `GOOGLE_GENAI_API_KEY`). MinIO is wired up service-to-service via `R2_ENDPOINT=http://minio:9000`, so the `R2_*` values in `.env` are not used when running inside Docker.
+
+### Production mode (parity check)
+
+```bash
+pnpm docker:prod          # docker compose -f docker-compose.yml up --build
+```
+
+All services build from their production Dockerfiles (`packages/{backend,frontend,workers-py}/Dockerfile`) with `NODE_ENV=production`. Use this for local production-parity testing.
+
+### Migrations inside Docker
+
+```bash
+pnpm docker:migrate       # docker compose --profile tools run --rm migrate
+```
+
+Runs `npx drizzle-kit migrate` once against the compose Postgres via the `tools` profile, then exits. Prefer this over `pnpm db:push` when working fully inside Docker.
+
+### Stopping
+
+```bash
+pnpm docker:down          # docker compose down
+```
+
+### Which path should I use?
+
+| Path | When |
+|------|------|
+| `bash scripts/setup-local.sh` + native dev servers | Fast iteration, best DX — recommended default |
+| `pnpm docker:dev` | No Node/Python on host; CI-adjacent environment |
+| `pnpm docker:prod` | Production-parity smoke test before deploy |
+
 ## Scripts
 
 ### Root
@@ -95,6 +147,11 @@ python -m src.main
 | `pnpm build` | Build all packages |
 | `pnpm lint` | Lint all packages |
 | `pnpm typecheck` | Type-check all packages |
+| `pnpm docker:dev` | Run full stack in Docker with dev overlay (hot reload) |
+| `pnpm docker:dev:build` | Same as `docker:dev` with `--build` (rebuild images) |
+| `pnpm docker:prod` | Run full stack in Docker using production images |
+| `pnpm docker:down` | Stop Docker Compose services |
+| `pnpm docker:migrate` | Run Drizzle migrations one-shot via the `tools` profile |
 
 ### Backend (`packages/backend`)
 
